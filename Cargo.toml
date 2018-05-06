@@ -1,0 +1,11 @@
+[package]
+name = "native-ui"
+version = "0.1.0"
+authors = ["sergej jurecko <sergej.jurecko@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+
+[build-dependencies]
+bindgen = ""
+cc = { version = "1.0", features = ["parallel"] }
