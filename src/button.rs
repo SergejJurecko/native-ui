@@ -2,6 +2,7 @@ use {ffi, Controller, EvId, Opaque, RegId, Ui, WidgetType};
 use std::ffi::CString;
 use std::os::raw;
 
+#[derive(Copy, Clone)]
 pub struct Button {
     p: *mut ffi::uiButton,
     opaque: Opaque,
@@ -21,7 +22,10 @@ impl Button {
     pub fn new(name: &str) -> Button {
         let s = CString::new(name).unwrap();
         let p = unsafe { ffi::uiNewButton(s.as_ptr()) };
-        Button { p, opaque: Opaque(WidgetType::Button, p as _) }
+        Button {
+            p,
+            opaque: Opaque(WidgetType::Button, p as _),
+        }
     }
 
     pub fn set_text(&self, txt: &str) {
@@ -31,7 +35,7 @@ impl Button {
         }
     }
 
-    pub fn reg_on_click(&self, ctrler: &Controller, evid: &EvId) {
+    pub fn reg_on_click<T>(&self, ctrler: &Controller<T>, evid: &EvId) {
         let id = ::std::boxed::Box::new(RegId {
             wt: WidgetType::Button,
             ctrl: ctrler.id().0,

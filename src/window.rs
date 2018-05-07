@@ -1,6 +1,7 @@
 use {ffi, Opaque, WidgetType};
 use std::ffi::CString;
 
+#[derive(Copy, Clone)]
 pub struct Window {
     p: *mut ffi::uiWindow,
     opaque: Opaque,
@@ -16,10 +17,13 @@ impl Window {
         }
         None
     }
-    pub fn new(title: &str, width: i32, height: i32, hasMenu: bool) -> Window {
+    pub fn new(title: &str, width: i32, height: i32, has_menu: bool) -> Window {
         let s = CString::new(title).unwrap();
-        let p = unsafe { ffi::uiNewWindow(s.as_ptr(), width, height, hasMenu as i32) };
-        Window { p, opaque: Opaque(WidgetType::Window, p as _) }
+        let p = unsafe { ffi::uiNewWindow(s.as_ptr(), width, height, has_menu as i32) };
+        Window {
+            p,
+            opaque: Opaque(WidgetType::Window, p as _),
+        }
     }
 
     pub fn set_margined(&self, m: i32) {

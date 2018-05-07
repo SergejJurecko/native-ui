@@ -5,10 +5,10 @@ use std::ptr;
 use std::os::raw;
 use fnv::FnvHashMap as HashMap;
 
-thread_local!(static REG: RefCell<*mut EvReg> = RefCell::new(ptr::null_mut()));
+thread_local!(static REG: RefCell<*mut raw::c_void> = RefCell::new(ptr::null_mut()));
 
-struct EvReg {
-    events: HashMap<CtrlId, Box<Controller>>,
+struct EvReg<T> {
+    events: HashMap<CtrlId, Box<Controller<T>>>,
     evgen: usize,
 }
 
@@ -16,33 +16,36 @@ pub struct EventLoop {
     opt: ffi::uiInitOptions,
 }
 
-fn gt<'a>(p_state: *mut EvReg) -> &'a mut EvReg {
-    unsafe { &mut *p_state }
+fn gt<'a, T>(p_state: *mut raw::c_void) -> &'a mut EvReg<T> {
+    unsafe { &mut *(p_state as *mut EvReg<T>) }
 }
 
 fn grid<'a>(p_state: *mut raw::c_void) -> &'a mut RegId {
     unsafe { &mut *(p_state as *mut RegId) }
 }
 
-// #[no_mangle]
-// #[allow(private_no_mangle_fns)]
+// fn gctrl<'a, T>(p_state: *mut Controller<T>) -> &'a mut Controller<T> {
+//     unsafe { &mut *p_state }
+// }
+
 pub(crate) unsafe extern "C" fn on_event<T>(p: *mut T, reg: *mut raw::c_void) {
     let reg_id = grid(reg);
-    let reg = gt(REG.with(|r| *r.borrow()));
-    if let Some(c) = reg.events.get(&CtrlId(reg_id.ctrl)) {
+    let reg:&mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
+        // let c = gctrl(c);
         c.event(EvId(reg_id.ev), Opaque(reg_id.wt, p as *mut raw::c_void));
     }
 }
 
 impl EventLoop {
-    pub fn new() -> EventLoop {
+    pub fn new<T>() -> EventLoop {
         REG.with(|r| {
             if *r.borrow() == ptr::null_mut() {
-                let res = Box::into_raw(Box::new(EvReg {
+                let res:*mut EvReg<T> = Box::into_raw(Box::new(EvReg {
                     events: HashMap::default(),
                     evgen: 0,
                 }));
-                *r.borrow_mut() = res;
+                *r.borrow_mut() = res as _;
                 // res
             }
         });
@@ -74,19 +77,27 @@ impl Drop for EventLoop {
 
 pub struct Ui;
 impl Ui {
-    pub fn reg_ctrler(ctrler: Box<Controller>) {
+    pub fn reg_ctrler<T>(ctrler: Box<Controller<T>>) {
         let gt = gt(REG.with(|r| *r.borrow()));
         gt.events.insert(CtrlId(ctrler.id().0), ctrler);
     }
 
-    pub fn ev_id() -> EvId {
-        let gt = gt(REG.with(|r| *r.borrow()));
+    pub fn send_msg<T>(ctrler: CtrlId, msg: T) {
+        let reg:&mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+        if let Some(c) = reg.events.get_mut(&ctrler) {
+            // let c = gctrl(c);
+            c.msg(msg);
+        }
+    }
+
+    pub fn ev_id<T>() -> EvId {
+        let gt:&mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
         gt.evgen += 1;
         EvId(gt.evgen)
     }
 
-    pub fn ctrl_id() -> CtrlId {
-        let gt = gt(REG.with(|r| *r.borrow()));
+    pub fn ctrl_id<T>() -> CtrlId {
+        let gt:&mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
         gt.evgen += 1;
         CtrlId(gt.evgen)
     }

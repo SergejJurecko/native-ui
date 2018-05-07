@@ -2,6 +2,7 @@ use {ffi, Opaque, WidgetType};
 // use std::ffi::CString;
 // use std::os::raw;
 
+#[derive(Copy, Clone)]
 pub struct Layout {
     p: *mut ffi::uiBox,
     opaque: Opaque,
@@ -20,12 +21,18 @@ impl Layout {
 
     pub fn new_vertical() -> Layout {
         let p = unsafe { ffi::uiNewVerticalBox() };
-        Layout { p, opaque: Opaque(WidgetType::Layout, p as _) }
+        Layout {
+            p,
+            opaque: Opaque(WidgetType::Layout, p as _),
+        }
     }
 
     pub fn new_horizontal() -> Layout {
         let p = unsafe { ffi::uiNewHorizontalBox() };
-        Layout { p, opaque: Opaque(WidgetType::Layout, p as _) }
+        Layout {
+            p,
+            opaque: Opaque(WidgetType::Layout, p as _),
+        }
     }
 
     pub fn append<T: AsRef<Opaque>>(&self, o: T, strechy: bool) {
@@ -41,9 +48,7 @@ impl Layout {
     }
 
     pub fn padded(&self) -> i32 {
-        unsafe {
-            ffi::uiBoxPadded(self.p)
-        }
+        unsafe { ffi::uiBoxPadded(self.p) }
     }
 
     pub fn set_padded(&self, padded: i32) {

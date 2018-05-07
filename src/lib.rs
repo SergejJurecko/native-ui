@@ -14,16 +14,19 @@ pub use layout::*;
 //     fn opaque(&self) -> Opaque;
 // }
 
-pub trait Controller {
-    fn event(&self, ev: EvId, obj: Opaque);
+pub trait Controller<T> {
+    /// GUI triggered events
+    fn event(&mut self, ev: EvId, obj: Opaque);
+    /// Inter-controller messages
+    fn msg(&mut self, msg: T);
     /// Created with ui::ctrl_id.
     /// Uniquelly identifies a controller.
-    fn id(&self) -> &CtrlId;
+    fn id(&self) -> CtrlId;
 }
 
-#[derive(PartialEq)] //Copy, Clone,
+#[derive(PartialEq, Copy, Clone)]
 pub struct EvId(usize);
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct CtrlId(usize);
 
 #[derive(Hash, PartialEq, Eq)]
