@@ -1,9 +1,9 @@
 use {ffi, Controller, CtrlId, EvId, Opaque, RegId, Window};
-use std::collections::HashMap;
 use std::boxed::Box;
 use std::cell::RefCell;
 use std::ptr;
 use std::os::raw;
+use fnv::FnvHashMap as HashMap;
 
 thread_local!(static REG: RefCell<*mut EvReg> = RefCell::new(ptr::null_mut()));
 
@@ -39,7 +39,7 @@ impl EventLoop {
         REG.with(|r| {
             if *r.borrow() == ptr::null_mut() {
                 let res = Box::into_raw(Box::new(EvReg {
-                    events: HashMap::new(),
+                    events: HashMap::default(),
                     evgen: 0,
                 }));
                 *r.borrow_mut() = res;

@@ -2,10 +2,7 @@
 name = "native-ui"
 version = "0.1.0"
 authors = ["sergej jurecko <sergej.jurecko@gmail.com>"]
-build = "build.rs"
 
 [dependencies]
-
-[build-dependencies]
-bindgen = ""
-cc = { version = "1.0", features = ["parallel"] }
+fnv = "1"
+native-ui-sys = {path = "native-ui-sys"}

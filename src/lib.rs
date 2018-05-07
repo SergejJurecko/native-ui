@@ -1,4 +1,6 @@
-mod ffi;
+extern crate fnv;
+extern crate native_ui_sys as ffi;
+
 mod window;
 mod button;
 mod layout;
