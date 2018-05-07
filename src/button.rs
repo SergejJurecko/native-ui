@@ -1,5 +1,5 @@
 use {ffi, Controller, EvId, Opaque, RegId, Ui, WidgetType};
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::os::raw;
 
 #[derive(Copy, Clone)]
@@ -32,6 +32,17 @@ impl Button {
         let s = CString::new(txt).unwrap();
         unsafe {
             ffi::uiButtonSetText(self.p, s.as_ptr());
+        }
+    }
+
+    pub fn text(&self) -> &str {
+        unsafe {
+            let slice = CStr::from_ptr(ffi::uiButtonText(self.p));
+            if let Ok(s) = slice.to_str() {
+                s
+            } else {
+                ""
+            }
         }
     }
 

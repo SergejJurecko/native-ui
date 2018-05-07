@@ -5,10 +5,12 @@ mod window;
 mod button;
 mod layout;
 mod ui;
+mod check_box;
 pub use ui::*;
 pub use window::*;
 pub use button::*;
 pub use layout::*;
+pub use check_box::*;
 
 // pub trait Widget {
 //     fn opaque(&self) -> Opaque;
@@ -50,17 +52,3 @@ enum WidgetType {
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct Opaque(WidgetType, *mut ::std::os::raw::c_void);
-
-// fn gt<'a>(p_state: *mut bcds_trans) -> &'a mut bcds_trans {
-// 	unsafe {
-// 		&mut *p_state
-// 	}
-// }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
