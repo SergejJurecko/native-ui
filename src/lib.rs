@@ -19,6 +19,8 @@ pub use check_box::*;
 pub trait Controller<T> {
     /// GUI triggered events
     fn event(&mut self, ev: EvId, obj: Opaque);
+    /// Window close
+    fn close_event(&mut self, ev: EvId, obj: Opaque) -> bool;
     /// Inter-controller messages
     fn msg(&mut self, msg: T);
     /// Created with ui::ctrl_id.

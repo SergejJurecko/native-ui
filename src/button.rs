@@ -46,7 +46,7 @@ impl Button {
         }
     }
 
-    pub fn reg_on_click<T>(&self, ctrler: &Controller<T>, evid: &EvId) {
+    pub fn reg_on_click<T>(&self, ctrler: &Controller<T>, evid: EvId) {
         let id = ::std::boxed::Box::new(RegId {
             wt: WidgetType::Button,
             ctrl: ctrler.id().0,
@@ -67,9 +67,3 @@ impl AsRef<Opaque> for Button {
         &self.opaque
     }
 }
-
-// impl Widget for Button {
-//     fn opaque(&self) -> Opaque {
-//         Opaque(WidgetType::Button, self.p as *mut ::std::os::raw::c_void)
-//     }
-// }
