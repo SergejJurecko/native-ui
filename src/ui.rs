@@ -8,6 +8,8 @@ use fnv::FnvHashMap as HashMap;
 thread_local!(static REG: RefCell<*mut raw::c_void> = RefCell::new(ptr::null_mut()));
 
 struct EvReg<T> {
+    mq_cid: CtrlId,
+    mq_eid: EvId,
     events: HashMap<CtrlId, Box<Controller<T>>>,
     evgen: usize,
 }
@@ -74,6 +76,13 @@ pub(crate) unsafe extern "C" fn on_quit<T>(reg: *mut raw::c_void) -> i32 {
     1
 }
 
+pub(crate) unsafe extern "C" fn on_queue<T>(data: *mut raw::c_void) {
+    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+    if let Some(c) = reg.events.get_mut(&CtrlId(reg.mq_cid.0)) {
+        c.msg(&Box::from_raw(data as _));
+    }
+}
+
 /// Inits and stops ui loop
 pub struct EventLoop {
     opt: ffi::uiInitOptions,
@@ -85,7 +94,9 @@ impl EventLoop {
             if *r.borrow() == ptr::null_mut() {
                 let res: *mut EvReg<T> = Box::into_raw(Box::new(EvReg {
                     events: HashMap::default(),
-                    evgen: 0,
+                    evgen: 100,
+                    mq_cid: CtrlId(0),
+                    mq_eid: EvId(0),
                 }));
                 *r.borrow_mut() = res as _;
                 // res
@@ -128,11 +139,11 @@ impl<T> Ui<T> {
         gt.events.insert(CtrlId(ctrler.id().0), ctrler);
     }
 
-    pub fn send_msg(ctrler: CtrlId, msg: T) {
+    pub fn send_msg(ctrler: CtrlId, msg: &T) {
         let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
         if let Some(c) = reg.events.get_mut(&ctrler) {
             // let c = gctrl(c);
-            c.msg(msg);
+            c.msg(&msg);
         }
     }
 
@@ -178,5 +189,22 @@ impl<T> Ui<T> {
                 Box::into_raw(id) as _,
             );
         }
+    }
+
+    /// Send message to controller registerd with reg_on_main_queue
+    pub fn main_queue(msg: T) {
+        unsafe {
+            ffi::uiQueueMain(
+                Some(::ui::on_queue::<T>),
+                // Box::into_raw(id) as _,
+                Box::into_raw(Box::new(msg)) as _,
+            );
+        }
+    }
+
+    pub fn reg_on_main_queue(ctrler: &Controller<T>, evid: EvId) {
+        let gt: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+        gt.mq_cid = ctrler.id();
+        gt.mq_eid = evid;
     }
 }

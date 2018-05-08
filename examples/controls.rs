@@ -35,7 +35,7 @@ impl Controller<Protocol> for BtnController {
             self.my_count += 1;
             self.set_name();
             println!("Clicked on button");
-            Ui::send_msg(self.other, Protocol::Clicked);
+            Ui::send_msg(self.other, &Protocol::Clicked);
         }
     }
 

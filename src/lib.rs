@@ -54,12 +54,11 @@ pub trait Controller<T> {
     /// Window close
     fn close_event(&mut self, ev: EvId, obj: Opaque) -> bool;
     /// Inter-controller messages
-    fn msg(&mut self, msg: T);
+    fn msg(&mut self, msg: &T);
     /// Created with ui::ctrl_id.
     /// Uniquelly identifies a controller.
     fn id(&self) -> CtrlId;
 }
-
 /// Event id so different events can be distinguished.
 #[derive(PartialEq, Copy, Clone)]
 pub struct EvId(usize);
@@ -68,18 +67,18 @@ pub struct EvId(usize);
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct CtrlId(usize);
 
-use std::os::raw;
-#[derive(Hash, PartialEq, Eq)]
+// use std::os::raw;
 struct RegId {
     wt: WidgetType,
     ctrl: usize,
     ev: usize,
-    evdata: *mut raw::c_void,
+    // evdata: *mut raw::c_void,
 }
 impl RegId {
     fn new(wt: WidgetType, ctrl: usize, ev: usize) -> RegId {
         RegId {
-            wt, ctrl, ev, evdata: ::std::ptr::null_mut(),
+            wt, ctrl, ev, 
+            // evdata: ::std::ptr::null_mut(),
         }
     }
 
