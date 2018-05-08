@@ -53,11 +53,11 @@ impl EditableCombobox {
     }
 
     pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
-        let id = ::std::boxed::Box::new(RegId {
-            wt: WidgetType::EditableCombobox,
-            ctrl: ctrler.id().0,
-            ev: evid.0,
-        });
+        let id = ::std::boxed::Box::new(RegId::new(
+            WidgetType::EditableCombobox,
+            ctrler.id().0,
+            evid.0,
+        ));
         unsafe {
             ffi::uiEditableComboboxOnChanged(
                 self.p,

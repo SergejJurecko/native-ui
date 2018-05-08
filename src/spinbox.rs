@@ -39,11 +39,11 @@ impl Spinbox {
     }
 
     pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
-        let id = ::std::boxed::Box::new(RegId {
-            wt: WidgetType::Spinbox,
-            ctrl: ctrler.id().0,
-            ev: evid.0,
-        });
+        let id = ::std::boxed::Box::new(RegId::new(
+            WidgetType::Spinbox,
+            ctrler.id().0,
+            evid.0,
+        ));
         unsafe {
             ffi::uiSpinboxOnChanged(
                 self.p,

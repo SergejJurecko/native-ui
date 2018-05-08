@@ -19,6 +19,8 @@ mod editable_combobox;
 mod radio_buttons;
 mod date_time_picker;
 mod multiline_entry;
+mod menu_item;
+mod menu;
 pub use ui::*;
 pub use window::*;
 pub use button::*;
@@ -37,6 +39,8 @@ pub use editable_combobox::*;
 pub use radio_buttons::*;
 pub use date_time_picker::*;
 pub use multiline_entry::*;
+pub use menu_item::*;
+pub use menu::*;
 // pub trait Widget {
 //     fn opaque(&self) -> Opaque;
 // }
@@ -58,11 +62,26 @@ pub struct EvId(usize);
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct CtrlId(usize);
 
+use std::os::raw;
 #[derive(Hash, PartialEq, Eq)]
 struct RegId {
     wt: WidgetType,
     ctrl: usize,
     ev: usize,
+    evdata: *mut raw::c_void,
+}
+impl RegId {
+    fn new(wt: WidgetType, ctrl: usize, ev: usize) -> RegId {
+        RegId {
+            wt, ctrl, ev, evdata: ::std::ptr::null_mut(),
+        }
+    }
+
+    // fn new_data(wt: WidgetType, ctrl: usize, ev: usize, evdata: *mut raw::c_void) -> RegId {
+    //     RegId {
+    //         wt, ctrl, ev, evdata,
+    //     }
+    // }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
@@ -70,7 +89,7 @@ enum WidgetType {
     Window,
     Button,
     Layout,
-    Checkbox, 
+    Checkbox,
     Entry,
     Label,
     Tab,
@@ -86,6 +105,7 @@ enum WidgetType {
     MultilineEntry,
     MenuItem,
     Menu,
+    Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Hash)]

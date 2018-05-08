@@ -77,11 +77,11 @@ impl MultilineEntry {
     }
 
     pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
-        let id = ::std::boxed::Box::new(RegId {
-            wt: WidgetType::MultilineEntry,
-            ctrl: ctrler.id().0,
-            ev: evid.0,
-        });
+        let id = ::std::boxed::Box::new(RegId::new(
+            WidgetType::MultilineEntry,
+            ctrler.id().0,
+            evid.0,
+        ));
         unsafe {
             ffi::uiMultilineEntryOnChanged(
                 self.p,

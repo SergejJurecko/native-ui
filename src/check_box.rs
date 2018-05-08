@@ -64,11 +64,11 @@ impl Checkbox {
     }
 
     pub fn reg_on_toggled<T>(&self, ctrler: &Controller<T>, evid: &EvId) {
-        let id = ::std::boxed::Box::new(RegId {
-            wt: WidgetType::Checkbox,
-            ctrl: ctrler.id().0,
-            ev: evid.0,
-        });
+        let id = ::std::boxed::Box::new(RegId::new(
+            WidgetType::Checkbox,
+            ctrler.id().0,
+            evid.0,
+        ));
         unsafe {
             ffi::uiCheckboxOnToggled(
                 self.p,

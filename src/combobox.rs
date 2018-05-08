@@ -47,11 +47,11 @@ impl Combobox {
     }
 
     pub fn reg_on_selected<T>(&self, ctrler: &Controller<T>, evid: EvId) {
-        let id = ::std::boxed::Box::new(RegId {
-            wt: WidgetType::Combobox,
-            ctrl: ctrler.id().0,
-            ev: evid.0,
-        });
+        let id = ::std::boxed::Box::new(RegId::new(
+            WidgetType::Combobox,
+            ctrler.id().0,
+            evid.0,
+        ));
         unsafe {
             ffi::uiComboboxOnSelected(
                 self.p,

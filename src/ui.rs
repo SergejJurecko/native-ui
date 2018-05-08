@@ -12,10 +12,6 @@ struct EvReg<T> {
     evgen: usize,
 }
 
-pub struct EventLoop {
-    opt: ffi::uiInitOptions,
-}
-
 fn gt<'a, T>(p_state: *mut raw::c_void) -> &'a mut EvReg<T> {
     unsafe { &mut *(p_state as *mut EvReg<T>) }
 }
@@ -33,18 +29,53 @@ pub(crate) unsafe extern "C" fn on_event<T>(p: *mut T, reg: *mut raw::c_void) {
     }
 }
 
+pub(crate) unsafe extern "C" fn on_menu_event<T>(p: *mut ffi::uiMenuItem, _w: *mut ffi::uiWindow, reg: *mut raw::c_void) {
+    let reg_id = grid(reg);
+    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
+        // let c = gctrl(c);
+        c.event(EvId(reg_id.ev), Opaque(reg_id.wt, p as *mut raw::c_void));
+    }
+}
+
 pub(crate) unsafe extern "C" fn on_close_event<T>(p: *mut T, reg: *mut raw::c_void) -> i32 {
     let reg_id = grid(reg);
     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
     if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
         // let c = gctrl(c);
         if c.close_event(EvId(reg_id.ev), Opaque(reg_id.wt, p as *mut raw::c_void)) {
+            // ffi::uiControlDestroy(p as _);
             return 1;
         } else {
             return 0;
         }
     }
+    // unsafe {
+    //     ffi::uiControlDestroy(p as _);
+    // }
     1
+}
+
+pub(crate) unsafe extern "C" fn on_quit<T>(reg: *mut raw::c_void) -> i32 {
+    let reg_id = grid(reg);
+    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
+        // let c = gctrl(c);
+        if c.close_event(EvId(reg_id.ev), Opaque(reg_id.wt, ptr::null_mut())) {
+            // ffi::uiControlDestroy(p as _);
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    // unsafe {
+    //     ffi::uiControlDestroy(p as _);
+    // }
+    1
+}
+
+pub struct EventLoop {
+    opt: ffi::uiInitOptions,
 }
 
 impl EventLoop {
@@ -70,7 +101,7 @@ impl EventLoop {
         state
     }
 
-    pub fn run(self) {
+    pub fn run(&self) {
         unsafe {
             ffi::uiMain();
         }
@@ -115,9 +146,15 @@ impl<T> Ui<T> {
         CtrlId(gt.evgen)
     }
 
-    pub fn show(w: Window) {
+    pub fn show(w: &Window) {
         unsafe {
             ffi::uiControlShow(w.as_ref().1 as _);
+        }
+    }
+
+    pub fn destroy(w: Window) {
+        unsafe {
+            ffi::uiControlDestroy(w.as_ref().1 as _);
         }
     }
 
@@ -127,17 +164,17 @@ impl<T> Ui<T> {
         }
     }
 
-    // pub fn reg_on_should_quit<T>(&self, ctrler: &Controller<T>, evid: EvId) {
-    //     let id = ::std::boxed::Box::new(RegId {
-    //         wt: ::WidgetType::Window,
-    //         ctrl: ctrler.id().0,
-    //         ev: evid.0,
-    //     });
-    //     unsafe {
-    //         ffi::uiOnShouldQuit(
-    //             Some(::ui::on_event::<ffi::uiButton>),
-    //             Box::into_raw(id) as *mut raw::c_void,
-    //         );
-    //     }
-    // }
+    pub fn reg_on_should_quit(ctrler: &Controller<T>, evid: EvId) {
+        let id = ::std::boxed::Box::new(RegId::new(
+            ::WidgetType::Null,
+            ctrler.id().0,
+            evid.0,
+        ));
+        unsafe {
+            ffi::uiOnShouldQuit(
+                Some(::ui::on_quit::<T>),
+                Box::into_raw(id) as _,
+            );
+        }
+    }
 }
