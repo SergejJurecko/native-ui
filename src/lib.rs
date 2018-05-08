@@ -13,6 +13,12 @@ mod group;
 mod spinbox;
 mod slider;
 mod progress_bar;
+mod separator;
+mod combobox;
+mod editable_combobox;
+mod radio_buttons;
+mod date_time_picker;
+mod multiline_entry;
 pub use ui::*;
 pub use window::*;
 pub use button::*;
@@ -25,6 +31,12 @@ pub use group::*;
 pub use spinbox::*;
 pub use slider::*;
 pub use progress_bar::*;
+pub use separator::*;
+pub use combobox::*;
+pub use editable_combobox::*;
+pub use radio_buttons::*;
+pub use date_time_picker::*;
+pub use multiline_entry::*;
 // pub trait Widget {
 //     fn opaque(&self) -> Opaque;
 // }
@@ -66,6 +78,14 @@ enum WidgetType {
     Spinbox,
     Slider,
     ProgressBar,
+    Separator,
+    Combobox,
+    EditableCombobox,
+    RadioButtons,
+    DateTimePicker,
+    MultilineEntry,
+    MenuItem,
+    Menu,
 }
 
 #[derive(Clone, Copy, PartialEq, Hash)]
