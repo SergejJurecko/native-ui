@@ -3,6 +3,7 @@ use std::ffi::{CStr, CString};
 use std::os::raw;
 use std::boxed::Box;
 
+/// Create windows as well as open message boxes and open/save dialogs. Once created and child is set open with Ui::show.
 #[derive(Copy, Clone)]
 pub struct Window {
     p: *mut ffi::uiWindow,
@@ -29,6 +30,8 @@ impl Window {
         }
     }
 
+
+    /// And a container child like a layout, group or tab.
     pub fn set_child<T: AsRef<Opaque>>(&self, o: T) {
         unsafe {
             ffi::uiWindowSetChild(self.p, o.as_ref().1 as *mut ffi::uiControl);
