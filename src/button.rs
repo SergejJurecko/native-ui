@@ -1,4 +1,4 @@
-use {ffi, Controller, EvId, Opaque, RegId, Ui, WidgetType};
+use {ffi, Controller, EvId, Opaque, RegId, WidgetType};
 use std::ffi::{CStr, CString};
 use std::os::raw;
 

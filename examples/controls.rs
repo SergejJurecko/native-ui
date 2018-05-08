@@ -22,12 +22,13 @@ impl BtnController {
 }
 
 // For messages exchanged between controllers.
+#[derive(PartialEq)]
 enum Protocol {
     Clicked,
 }
 
 impl Controller<Protocol> for BtnController {
-    fn event(&mut self, ev: EvId, obj: Opaque) {
+    fn event(&mut self, ev: EvId, _obj: Opaque) {
         if ev == self.ev {
             // Opaque is widget that originated the event
             // let b = Button::from(obj).unwrap();
@@ -44,8 +45,10 @@ impl Controller<Protocol> for BtnController {
     }
 
     fn msg(&mut self, msg: Protocol) {
-        self.his_count += 1;
-        self.set_name();
+        if msg == Protocol::Clicked {
+            self.his_count += 1;
+            self.set_name();
+        }
     }
 
     fn id(&self) -> CtrlId {

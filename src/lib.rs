@@ -6,12 +6,25 @@ mod button;
 mod layout;
 mod ui;
 mod check_box;
+mod entry;
+mod label;
+mod tab;
+mod group;
+mod spinbox;
+mod slider;
+mod progress_bar;
 pub use ui::*;
 pub use window::*;
 pub use button::*;
 pub use layout::*;
 pub use check_box::*;
-
+pub use entry::*;
+pub use label::*;
+pub use tab::*;
+pub use group::*;
+pub use spinbox::*;
+pub use slider::*;
+pub use progress_bar::*;
 // pub trait Widget {
 //     fn opaque(&self) -> Opaque;
 // }
@@ -45,12 +58,15 @@ enum WidgetType {
     Window,
     Button,
     Layout,
-    Checkbox,
+    Checkbox, 
     Entry,
     Label,
     Tab,
     Group,
+    Spinbox,
+    Slider,
+    ProgressBar,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Hash)]
 pub struct Opaque(WidgetType, *mut ::std::os::raw::c_void);
