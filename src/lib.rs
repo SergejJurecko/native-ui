@@ -45,6 +45,9 @@ pub use menu::*;
 //     fn opaque(&self) -> Opaque;
 // }
 
+
+/// Controller trait that receives events from GUI widgets. 
+/// First it must be registered with a widget event, then it must be given to Ui::reg_ctrler.
 pub trait Controller<T> {
     /// GUI triggered events
     fn event(&mut self, ev: EvId, obj: Opaque);
@@ -57,8 +60,11 @@ pub trait Controller<T> {
     fn id(&self) -> CtrlId;
 }
 
+/// Event id so different events can be distinguished.
 #[derive(PartialEq, Copy, Clone)]
 pub struct EvId(usize);
+/// Event of controller that handles events. There can be any number of controllers or 
+/// one large one that handles all events.
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct CtrlId(usize);
 

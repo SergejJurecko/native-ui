@@ -74,6 +74,7 @@ pub(crate) unsafe extern "C" fn on_quit<T>(reg: *mut raw::c_void) -> i32 {
     1
 }
 
+/// Inits and stops ui loop
 pub struct EventLoop {
     opt: ffi::uiInitOptions,
 }
@@ -119,6 +120,7 @@ impl Drop for EventLoop {
     }
 }
 
+/// For connecting widgets to commands, show windows and sending quit signal
 pub struct Ui<T>(::std::marker::PhantomData<T>);
 impl<T> Ui<T> {
     pub fn reg_ctrler(ctrler: Box<Controller<T>>) {
