@@ -44,8 +44,8 @@ impl Controller<Protocol> for BtnController {
         true
     }
 
-    fn msg(&mut self, msg: Protocol) {
-        if msg == Protocol::Clicked {
+    fn msg(&mut self, msg: &Protocol) {
+        if *msg == Protocol::Clicked {
             self.his_count += 1;
             self.set_name();
         }
