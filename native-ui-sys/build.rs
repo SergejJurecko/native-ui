@@ -24,6 +24,7 @@ fn main() {
     // .flag("-O2");
 
     if target.contains("apple") {
+        cc.flag("-mmacosx-version-min=10.8");
         // cc.flag("-Wall")
             // .flag("-Wextra")
             // .flag("-pedantic")

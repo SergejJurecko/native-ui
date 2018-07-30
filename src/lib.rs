@@ -1,83 +1,56 @@
 extern crate fnv;
 extern crate native_ui_sys as ffi;
 
-mod window;
-mod button;
-mod layout;
+mod api;
 mod ui;
-mod check_box;
-mod entry;
-mod label;
-mod tab;
-mod group;
-mod spinbox;
-mod slider;
-mod progress_bar;
-mod separator;
-mod combobox;
-mod editable_combobox;
-mod radio_buttons;
-mod date_time_picker;
-mod multiline_entry;
-mod menu_item;
-mod menu;
+mod wrappers;
+
+pub use api::Opaque;
+pub use api::*;
 pub use ui::*;
-pub use window::*;
-pub use button::*;
-pub use layout::*;
-pub use check_box::*;
-pub use entry::*;
-pub use label::*;
-pub use tab::*;
-pub use group::*;
-pub use spinbox::*;
-pub use slider::*;
-pub use progress_bar::*;
-pub use separator::*;
-pub use combobox::*;
-pub use editable_combobox::*;
-pub use radio_buttons::*;
-pub use date_time_picker::*;
-pub use multiline_entry::*;
-pub use menu_item::*;
-pub use menu::*;
-// pub trait Widget {
-//     fn opaque(&self) -> Opaque;
-// }
 
-
-/// Controller trait that receives events from GUI widgets. 
+/// Controller trait that receives events from GUI widgets, event loop or other threads.
 /// First it must be registered with a widget event, then it must be given to Ui::reg_ctrler.
+/// Non widget events are registered in Ui.
 pub trait Controller<T> {
     /// GUI triggered events
-    fn event(&mut self, ev: EvId, obj: Opaque);
+    fn event(&mut self, ev: EvId, obj: api::Opaque);
     /// Window close
-    fn close_event(&mut self, ev: EvId, obj: Opaque) -> bool;
+    fn close_event(&mut self, ev: EvId, obj: api::Opaque) -> bool;
     /// Inter-controller messages
     fn msg(&mut self, msg: &T);
     /// Created with ui::ctrl_id.
     /// Uniquelly identifies a controller.
     fn id(&self) -> CtrlId;
 }
-/// Event id so different events can be distinguished.
+/// Event ID so different events can be distinguished when sent to a single controller.
 #[derive(PartialEq, Copy, Clone)]
 pub struct EvId(usize);
-/// Event of controller that handles events. There can be any number of controllers or 
-/// one large one that handles all events.
+/// ID of controller that handles events. ID is used to distinguish controllers
+/// so messages can be sent between them using Ui::send_msg
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct CtrlId(usize);
 
+pub(crate) fn int_opaque(o: &api::Opaque) -> Option<ImplOpaque> {
+    if let Some(op) = ui::UiImpl::get_widget(o.1) {
+        return Some(op.clone());
+    }
+    None
+}
+
 // use std::os::raw;
 struct RegId {
-    wt: WidgetType,
+    widget: api::Opaque,
     ctrl: usize,
     ev: usize,
     // evdata: *mut raw::c_void,
 }
 impl RegId {
-    fn new(wt: WidgetType, ctrl: usize, ev: usize) -> RegId {
+    fn new(widget: api::Opaque, ctrl: usize, ev: usize) -> RegId {
         RegId {
-            wt, ctrl, ev, 
+            widget,
+            ctrl,
+            ev,
             // evdata: ::std::ptr::null_mut(),
         }
     }
@@ -114,4 +87,4 @@ enum WidgetType {
 }
 
 #[derive(Clone, Copy, PartialEq, Hash)]
-pub struct Opaque(WidgetType, *mut ::std::os::raw::c_void);
+struct ImplOpaque(WidgetType, *mut ::std::os::raw::c_void);

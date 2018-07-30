@@ -43,6 +43,8 @@ list(APPEND _LIBUI_SOURCES
 	darwin/spinbox.m
 	darwin/stddialogs.m
 	darwin/tab.m
+	darwin/table.m
+	darwin/tablecolumn.m
 	darwin/text.m
 	darwin/undocumented.m
 	darwin/util.m
@@ -56,11 +58,6 @@ list(APPEND _LIBUI_INCLUDEDIRS
 	darwin
 )
 set(_LIBUI_INCLUDEDIRS _LIBUI_INCLUDEDIRS PARENT_SCOPE)
-
-set(_LIBUINAME libui PARENT_SCOPE)
-macro(_handle_static)
-	# do nothing
-endmacro()
 
 set(_LIBUI_LIBS
 	objc "-framework Foundation" "-framework AppKit"

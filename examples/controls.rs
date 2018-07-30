@@ -93,11 +93,10 @@ fn main() {
     btn1.reg_on_click::<Protocol>(&c1, c1.ev);
     btn2.reg_on_click::<Protocol>(&c2, c2.ev);
     win.reg_on_closing(&c1, Ui::ev_id());
-    Ui::reg_on_should_quit(&c1, Ui::ev_id());
+    // Ui::reg_on_should_quit(&c1, Ui::ev_id());
     Ui::reg_ctrler(std::boxed::Box::new(c1));
     Ui::reg_ctrler(std::boxed::Box::new(c2));
 
     Ui::show(&win);
     el.run();
-    // Ui::destroy(win);
 }
