@@ -1,5 +1,7 @@
 extern crate native_ui;
-use native_ui::{Button, Controller, CtrlId, EvId, EventLoop, Layout, Opaque, Ui as GenUi, Window};
+use native_ui::{
+    Button, Controller, CtrlId, EvId, EventLoop, Layout, Opaque, Tray, Ui as GenUi, Window,
+};
 type Ui = GenUi<Protocol>;
 
 struct BtnController {
@@ -66,6 +68,7 @@ fn main() {
     layout.append(&btn1, true);
     layout.append(&btn2, true);
     win.set_child(&layout);
+    let tray = Tray::new("HELLO");
 
     let c1id = Ui::ctrl_id();
     let c2id = Ui::ctrl_id();
@@ -87,13 +90,16 @@ fn main() {
         my_count: 0,
         his_count: 0,
     };
+    tray.add_item("item1", &c1, Ui::ev_id());
+    tray.add_separator();
+    tray.add_quit();
     // Associate on_click event with controller.
     // A controller can be registered for any number of events from any number of widgets.
     // We use a controller per button, which is probably uncommon.
     btn1.reg_on_click::<Protocol>(&c1, c1.ev);
     btn2.reg_on_click::<Protocol>(&c2, c2.ev);
     win.reg_on_closing(&c1, Ui::ev_id());
-    // Ui::reg_on_should_quit(&c1, Ui::ev_id());
+    Ui::reg_on_should_quit(&c1, Ui::ev_id());
     Ui::reg_ctrler(std::boxed::Box::new(c1));
     Ui::reg_ctrler(std::boxed::Box::new(c2));
 

@@ -102,23 +102,22 @@ pub(crate) unsafe extern "C" fn on_close_event<T>(p: *mut T, reg: *mut raw::c_vo
     1
 }
 
-// pub(crate) unsafe extern "C" fn on_quit<T>(reg: *mut raw::c_void) -> i32 {
-//     let reg_id = grid(reg);
-//     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-//     if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
-//         // let c = gctrl(c);
-//         if c.close_event(EvId(reg_id.ev), reg_id.widget) {
-//             // ffi::uiControlDestroy(p as _);
-//             return 1;
-//         } else {
-//             return 0;
-//         }
-//     }
-//     // unsafe {
-//     //     ffi::uiControlDestroy(p as _);
-//     // }
-//     1
-// }
+pub(crate) unsafe extern "C" fn on_quit<T>(reg: *mut raw::c_void) -> i32 {
+    let reg_id = grid(reg);
+    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
+        // let c = gctrl(c);
+        if c.close_event(EvId(reg_id.ev), reg_id.widget) {
+            UiImpl::close_windows();
+        // ffi::uiControlDestroy(p as _);
+        } else {
+        }
+    }
+    // unsafe {
+    //     ffi::uiControlDestroy(p as _);
+    // }
+    0
+}
 
 pub(crate) unsafe extern "C" fn on_queue<T>(data: *mut raw::c_void) {
     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
@@ -241,14 +240,16 @@ impl<T> Ui<T> {
         }
     }
 
-    /// Controller will receive event_close for a quit message.
-    /// ATM this does not work in libui...
-    // pub fn reg_on_should_quit(ctrler: &Controller<T>, evid: EvId) {
-    //     let id = ::std::boxed::Box::new(RegId::new(::WidgetType::Null, ctrler.id().0, evid.0));
-    //     unsafe {
-    //         ffi::uiOnShouldQuit(Some(::ui::on_quit::<T>), Box::into_raw(id) as _);
-    //     }
-    // }
+    pub fn reg_on_should_quit(ctrler: &Controller<T>, evid: EvId) {
+        let id = ::std::boxed::Box::new(RegId::new(
+            ::Opaque(::WidgetType::Null, usize::max_value()),
+            ctrler.id().0,
+            evid.0,
+        ));
+        unsafe {
+            ffi::uiOnShouldQuit(Some(::ui::on_quit::<T>), Box::into_raw(id) as _);
+        }
+    }
 
     /// Send message to controller registered with reg_on_main_queue.
     /// Can be called from any thread.
@@ -326,6 +327,19 @@ impl UiImpl {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
             Self::remove_children(id, state);
+        });
+    }
+
+    fn close_windows() {
+        UISTATE.with(|r| {
+            let state = &mut *r.borrow_mut();
+            for (id, w) in state.widgets.iter() {
+                if w.op.0 == ::WidgetType::Window {
+                    unsafe {
+                        ffi::uiControlDestroy(w.op.1 as _);
+                    }
+                }
+            }
         });
     }
 

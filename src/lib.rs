@@ -1,10 +1,13 @@
 extern crate fnv;
 extern crate native_ui_sys as ffi;
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
 
 mod api;
+mod os;
 mod ui;
 mod wrappers;
-
 pub use api::Opaque;
 pub use api::*;
 pub use ui::*;
@@ -84,6 +87,7 @@ enum WidgetType {
     MenuItem,
     Menu,
     Null,
+    Tray,
 }
 
 #[derive(Clone, Copy, PartialEq, Hash)]

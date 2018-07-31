@@ -1,5 +1,5 @@
 #[derive(Clone, Copy, PartialEq, Hash)]
-pub struct Opaque(::WidgetType, pub(crate) usize);
+pub struct Opaque(pub(crate) ::WidgetType, pub(crate) usize);
 
 mod button;
 mod check_box;
@@ -20,12 +20,14 @@ mod date_time_picker;
 // mod multiline_entry;
 // mod menu_item;
 // mod menu;
+mod tray;
 
 pub use self::button::*;
 pub use self::check_box::*;
 pub use self::entry::*;
 pub use self::label::*;
 pub use self::layout::*;
+pub use self::tray::*;
 pub use self::window::*;
 // pub use self::tab::*;
 pub use self::group::*;

@@ -6,3 +6,9 @@ authors = ["sergej jurecko <sergej.jurecko@gmail.com>"]
 [dependencies]
 fnv = "1"
 native-ui-sys = {path = "native-ui-sys"}
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc = "0.2"
+# objc_id = "0.1"
+cocoa = "0.17"
+# dispatch = "0.1"

@@ -33,6 +33,16 @@ impl DateTimePicker {
             op: Opaque(WidgetType::DateTimePicker, _p as _),
         }
     }
+
+    pub fn reg_on_changed(&self, p: *mut ::RegId) {
+        unsafe {
+            ffi::uiDateTimePickerOnChanged(
+                self.op.1 as _,
+                Some(::ui::on_event::<ffi::uiDateTimePicker>),
+                p as *mut ::std::os::raw::c_void,
+            );
+        }
+    }
 }
 
 impl AsRef<Opaque> for DateTimePicker {

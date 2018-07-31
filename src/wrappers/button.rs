@@ -1,6 +1,6 @@
 use std::ffi::{CStr, CString};
 use std::os::raw;
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct Button {

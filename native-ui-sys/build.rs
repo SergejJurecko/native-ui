@@ -2,8 +2,8 @@ extern crate bindgen;
 extern crate cc;
 
 use std::env;
-use std::path::PathBuf;
 use std::ffi::OsStr;
+use std::path::PathBuf;
 
 fn main() {
     let target = env::var("TARGET").unwrap();
@@ -17,20 +17,20 @@ fn main() {
         }
     }
     cc.flag("--std=c99")
-    .warnings(false)
-    .extra_warnings(false)
-    .flag("-Wno-deprecated");
+        .warnings(false)
+        .extra_warnings(false)
+        .flag("-Wno-deprecated");
     // .flag("--std=c++11")
     // .flag("-O2");
 
     if target.contains("apple") {
-        cc.flag("-mmacosx-version-min=10.8");
+        cc.flag("-mmacosx-version-min=10.11");
         // cc.flag("-Wall")
-            // .flag("-Wextra")
-            // .flag("-pedantic")
-            // .flag("-Wno-unused-parameter")
-            // .flag("-Wno-switch")
-            // .flag("-fvisibility=hidden");
+        // .flag("-Wextra")
+        // .flag("-pedantic")
+        // .flag("-Wno-unused-parameter")
+        // .flag("-Wno-switch")
+        // .flag("-fvisibility=hidden");
         for entry in ::std::fs::read_dir("libui/darwin").unwrap() {
             if let Ok(entry) = entry {
                 if entry.path().extension() == Some(OsStr::new("m")) {

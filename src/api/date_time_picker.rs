@@ -47,6 +47,15 @@ impl DateTimePicker {
             b,
         }
     }
+
+    pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+        if UiImpl::get_widget(self.op.1).is_none() {
+            return;
+        }
+        let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+        self.b.reg_on_changed(id);
+        UiImpl::add_ev(self.op, id);
+    }
 }
 
 impl ::std::cmp::PartialEq for DateTimePicker {
