@@ -50,11 +50,15 @@ impl EditableCombobox {
         unsafe {
             ffi::uiEditableComboboxOnChanged(
                 self.op.1 as _,
-                Some(::ui::on_event::<ffi::uiEditableCombobox>),
+                Some(on_event),
                 p as *mut ::std::os::raw::c_void,
             );
         }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiEditableCombobox, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event::<*mut ffi::uiEditableCombobox>(reg);
 }
 
 impl AsRef<Opaque> for EditableCombobox {

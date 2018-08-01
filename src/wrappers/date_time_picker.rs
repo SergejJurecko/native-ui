@@ -38,11 +38,15 @@ impl DateTimePicker {
         unsafe {
             ffi::uiDateTimePickerOnChanged(
                 self.op.1 as _,
-                Some(::ui::on_event::<ffi::uiDateTimePicker>),
+                Some(on_event),
                 p as *mut ::std::os::raw::c_void,
             );
         }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiDateTimePicker, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event::<*mut ffi::uiDateTimePicker>(reg);
 }
 
 impl AsRef<Opaque> for DateTimePicker {

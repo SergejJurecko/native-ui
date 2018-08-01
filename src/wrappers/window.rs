@@ -56,7 +56,7 @@ impl Window {
         unsafe {
             ffi::uiWindowOnContentSizeChanged(
                 self.op.1 as _,
-                Some(::ui::on_event::<ffi::uiWindow>),
+                Some(on_event),
                 p as *mut raw::c_void,
             );
         }
@@ -160,6 +160,10 @@ impl Window {
     pub fn borderless(&self) -> i32 {
         unsafe { ffi::uiWindowBorderless(self.op.1 as _) }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiWindow, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event::<*mut ffi::uiWindow>(reg);
 }
 
 impl AsRef<Opaque> for Window {

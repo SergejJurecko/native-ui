@@ -63,7 +63,7 @@ fn grid<'a>(p_state: *mut raw::c_void) -> &'a mut RegId {
     unsafe { &mut *(p_state as *mut RegId) }
 }
 
-pub(crate) unsafe extern "C" fn on_event<T>(_: *mut T, reg: *mut raw::c_void) {
+pub(crate) unsafe extern "C" fn on_event<T>(reg: *mut raw::c_void) {
     let reg_id = grid(reg);
     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
     if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {

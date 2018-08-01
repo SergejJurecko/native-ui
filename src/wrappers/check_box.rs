@@ -61,11 +61,15 @@ impl Checkbox {
         unsafe {
             ffi::uiCheckboxOnToggled(
                 self.op.1 as _,
-                Some(::ui::on_event::<ffi::uiCheckbox>),
+                Some(on_event),
                 p as *mut ::std::os::raw::c_void,
             );
         }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiCheckbox, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event::<*mut ffi::uiCheckbox>(reg);
 }
 
 impl AsRef<Opaque> for Checkbox {

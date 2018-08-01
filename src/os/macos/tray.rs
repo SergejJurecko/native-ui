@@ -13,15 +13,21 @@ use std::sync::{Once, ONCE_INIT};
 static mut RESPONDER_CLASS: *const Class = 0 as *const Class;
 static INIT: Once = ONCE_INIT;
 
-thread_local!(static EVENTS: RefCell<HashMap<*mut raw::c_void, *mut raw::c_void>> = RefCell::new(HashMap::default()));
+thread_local!(static EVENTS: RefCell<HashMap<*mut Object, *mut ::RegId>> = RefCell::new(HashMap::default()));
 
 extern "C" fn on_button_click(this: &Object, _cmd: Sel, target: id) {
-    let name = unsafe {
-        let ptr: u64 = *this.get_ivar("_name");
-        // nsstring_decode(ptr as id)
-    };
-    println!("onclick");
-    // send_event(target, Event::ButtonClicked(name));
+    // let name = unsafe {
+    //     let ptr: u64 = *this.get_ivar("_name");
+    //     // nsstring_decode(ptr as id)
+    // };
+    EVENTS.with(|r| {
+        let p = this as *const Object;
+        if let Some(reg) = (*r.borrow()).get(&target) {
+            unsafe {
+                ::ui::on_event::<Tray>(*reg as _);
+            }
+        }
+    });
 }
 
 pub(crate) struct Tray {
@@ -88,7 +94,7 @@ impl Tray {
         }
     }
 
-    pub fn add_item(&self, txt: &str) {
+    pub fn add_item(&self, txt: &str, p: *mut ::RegId) {
         unsafe {
             let txt = NSString::alloc(nil).init_str(txt);
             let action = selector("onClicked:");
@@ -97,6 +103,9 @@ impl Tray {
                 .autorelease();
             msg_send![item, setTarget: self.responder];
             msg_send![item, setAction: sel!(onButtonClick:)];
+            EVENTS.with(|r| {
+                (*r.borrow_mut()).insert(item, p);
+            });
             self.menubar.addItem_(item);
         }
     }

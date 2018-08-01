@@ -42,11 +42,15 @@ impl Combobox {
         unsafe {
             ffi::uiComboboxOnSelected(
                 self.op.1 as _,
-                Some(::ui::on_event::<ffi::uiCombobox>),
+                Some(on_event),
                 p as *mut ::std::os::raw::c_void,
             );
         }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiCombobox, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event::<*mut ffi::uiCombobox>(reg);
 }
 
 impl AsRef<Opaque> for Combobox {

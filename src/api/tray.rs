@@ -68,7 +68,7 @@ impl Tray {
                 let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
                 // self.b.reg_on_click(id);
                 UiImpl::add_ev(self.op, id);
-                tray.add_item(txt);
+                tray.add_item(txt, id);
             }
         }
     }

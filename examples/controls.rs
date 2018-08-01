@@ -8,6 +8,7 @@ struct BtnController {
     id: CtrlId,
     other: CtrlId,
     ev: EvId,
+    tray_ev: EvId,
     btn: Button,
     my_count: usize,
     his_count: usize,
@@ -31,6 +32,9 @@ enum Protocol {
 
 impl Controller<Protocol> for BtnController {
     fn event(&mut self, ev: EvId, _obj: Opaque) {
+        if ev == self.tray_ev {
+            println!("tray_ev");
+        }
         if ev == self.ev {
             // Opaque is widget that originated the event
             // let b = Button::from(obj).unwrap();
@@ -73,12 +77,15 @@ fn main() {
     let c1id = Ui::ctrl_id();
     let c2id = Ui::ctrl_id();
 
+    let tray_ev = Ui::ev_id();
+
     // setup event handling
     let c1 = BtnController {
         id: c1id,
         other: c2id, // To send messages to other controllers, we need to know their CtrlId
         btn: btn1,   // All widgets are Clone+Copy
         ev: Ui::ev_id(),
+        tray_ev,
         my_count: 0,
         his_count: 0,
     };
@@ -87,12 +94,14 @@ fn main() {
         other: c1id,
         btn: btn2,
         ev: Ui::ev_id(),
+        tray_ev,
         my_count: 0,
         his_count: 0,
     };
-    tray.add_item("item1", &c1, Ui::ev_id());
+    tray.add_item("item1", &c1, tray_ev);
     tray.add_separator();
     tray.add_quit();
+
     // Associate on_click event with controller.
     // A controller can be registered for any number of events from any number of widgets.
     // We use a controller per button, which is probably uncommon.

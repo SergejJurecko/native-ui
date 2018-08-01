@@ -73,11 +73,15 @@ impl Entry {
         unsafe {
             ffi::uiEntryOnChanged(
                 self.op.1 as _,
-                Some(::ui::on_event::<ffi::uiEntry>),
+                Some(on_event),
                 p as *mut ::std::os::raw::c_void,
             );
         }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiEntry, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event::<*mut ffi::uiEntry>(reg);
 }
 
 impl AsRef<Opaque> for Entry {
