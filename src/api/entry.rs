@@ -10,18 +10,6 @@ pub struct Entry {
 }
 
 impl Entry {
-    // pub fn from(o: ApiOpaque) -> Option<Entry> {
-    //     if o.0 == ::WidgetType::Entry {
-    //         if let Some(o1) = UiImpl::get_widget(o.1) {
-    //             return Some(Entry {
-    //                 op: o,
-    //                 b: ImplEntry::from(o1).unwrap(),
-    //             });
-    //         }
-    //     }
-    //     None
-    // }
-
     pub fn new(gr: ::EvGroup) -> Entry {
         let b = ImplEntry::new();
         let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1), gr);

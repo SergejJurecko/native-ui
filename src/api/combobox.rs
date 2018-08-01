@@ -10,18 +10,6 @@ pub struct Combobox {
 }
 
 impl Combobox {
-    // pub fn from(o: ApiOpaque) -> Option<Combobox> {
-    //     if o.0 == ::WidgetType::Combobox {
-    //         if let Some(o1) = UiImpl::get_widget(o.1) {
-    //             return Some(Combobox {
-    //                 op: o,
-    //                 b: ImplCombobox::from(o1).unwrap(),
-    //             });
-    //         }
-    //     }
-    //     None
-    // }
-
     pub fn new(gr: ::EvGroup) -> Combobox {
         let b = ImplCombobox::new();
         let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Combobox, b.op.1), gr);

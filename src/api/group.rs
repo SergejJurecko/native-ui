@@ -6,29 +6,17 @@ use wrappers::Group as ImplGroup;
 pub struct Group {
     op: ApiOpaque,
     b: ImplGroup,
-    gr: ::EvGroup,
+    // gr: ::EvGroup,
 }
 
 impl Group {
-    // pub fn from(o: ApiOpaque) -> Option<Group> {
-    //     if o.0 == ::WidgetType::Group {
-    //         if let Some(o1) = UiImpl::get_widget(o.1) {
-    //             return Some(Group {
-    //                 op: o,
-    //                 b: ImplGroup::from(o1).unwrap(),
-    //             });
-    //         }
-    //     }
-    //     None
-    // }
-
     pub fn new(name: &str, gr: ::EvGroup) -> Group {
         let b = ImplGroup::new(name);
         let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Group, b.op.1), gr);
         Group {
             op: ApiOpaque(::WidgetType::Group, id),
             b,
-            gr,
+            // gr,
         }
     }
 

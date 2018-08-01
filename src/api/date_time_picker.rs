@@ -10,18 +10,6 @@ pub struct DateTimePicker {
 }
 
 impl DateTimePicker {
-    // pub fn from(o: ApiOpaque) -> Option<DateTimePicker> {
-    //     if o.0 == ::WidgetType::DateTimePicker {
-    //         if let Some(o1) = UiImpl::get_widget(o.1) {
-    //             return Some(DateTimePicker {
-    //                 op: o,
-    //                 b: ::wrappers::DateTimePicker::from(o1).unwrap(),
-    //             });
-    //         }
-    //     }
-    //     None
-    // }
-
     pub fn new_date_time(gr: ::EvGroup) -> DateTimePicker {
         let b = ::wrappers::DateTimePicker::new_date_time();
         let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::DateTimePicker, b.op.1), gr);

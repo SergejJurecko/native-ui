@@ -11,18 +11,6 @@ pub struct Window {
 }
 
 impl Window {
-    // pub fn from(o: ApiOpaque) -> Option<Window> {
-    //     if o.0 == ::WidgetType::Window {
-    //         if let Some(w1) = UiImpl::get_widget(o.1) {
-    //             return Some(Window {
-    //                 op: o,
-    //                 w: ::wrappers::Window::from(w1).unwrap(),
-    //             });
-    //         }
-    //     }
-    //     None
-    // }
-
     pub fn new(title: &str, width: i32, height: i32, has_menu: bool, gr: ::EvGroup) -> Window {
         let w = ::wrappers::Window::new(title, width, height, has_menu);
         let id = UiImpl::new_widget(w.op.clone(), gr);

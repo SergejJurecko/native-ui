@@ -10,18 +10,6 @@ pub struct Checkbox {
 }
 
 impl Checkbox {
-    // pub fn from(o: ApiOpaque) -> Option<Checkbox> {
-    //     if o.0 == ::WidgetType::Checkbox {
-    //         if let Some(o1) = UiImpl::get_widget(o.1) {
-    //             return Some(Checkbox {
-    //                 op: o,
-    //                 b: ImplCheckbox::from(o1).unwrap(),
-    //             });
-    //         }
-    //     }
-    //     None
-    // }
-
     pub fn new(name: &str, gr: ::EvGroup) -> Checkbox {
         let b = ImplCheckbox::new(name);
         let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Checkbox, b.op.1), gr);

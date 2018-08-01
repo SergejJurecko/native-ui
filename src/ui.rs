@@ -195,6 +195,7 @@ impl EventLoop {
     }
 
     /// Create an event group to put widgets in.
+    /// Panics if called more than 254 times!
     pub fn new_group(&self) -> ::EvGroup {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
@@ -203,12 +204,10 @@ impl EventLoop {
     }
 
     pub fn show(&self, apiw: &api::Window) {
-        println!("show {}", apiw.op.1);
         unsafe {
             UISTATE.with(|r| {
                 let state = &mut *r.borrow_mut();
                 if let Some(w) = state.widgets.get_mut(&apiw.op.1) {
-                    println!("show1");
                     if w.on_closing == ::std::ptr::null_mut() {
                         let id = Box::into_raw(Box::new(::RegId::new(
                             apiw.op,

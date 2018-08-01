@@ -10,15 +10,6 @@ pub struct Tray {
 }
 
 impl Tray {
-    // pub fn from(o: ApiOpaque) -> Option<Tray> {
-    //     if o.0 == ::WidgetType::Button {
-    //         if let Some(o1) = UiImpl::get_widget(o.1) {
-    //             return Some(Tray { op: o });
-    //         }
-    //     }
-    //     None
-    // }
-
     fn from_impl(b: ImplTray, gr: ::EvGroup) -> Tray {
         let id = UiImpl::new_widget(
             ::ImplOpaque(::WidgetType::Tray, Box::into_raw(Box::new(b)) as _),
