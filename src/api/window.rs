@@ -7,34 +7,36 @@ use {wrappers::Window as ImplWindow, EvId};
 pub struct Window {
     pub(crate) op: ApiOpaque,
     w: ImplWindow,
+    gr: ::EvGroup,
 }
 
 impl Window {
-    pub fn from(o: ApiOpaque) -> Option<Window> {
-        if o.0 == ::WidgetType::Window {
-            if let Some(w1) = UiImpl::get_widget(o.1) {
-                return Some(Window {
-                    op: o,
-                    w: ::wrappers::Window::from(w1).unwrap(),
-                });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Window> {
+    //     if o.0 == ::WidgetType::Window {
+    //         if let Some(w1) = UiImpl::get_widget(o.1) {
+    //             return Some(Window {
+    //                 op: o,
+    //                 w: ::wrappers::Window::from(w1).unwrap(),
+    //             });
+    //         }
+    //     }
+    //     None
+    // }
 
-    pub fn new(title: &str, width: i32, height: i32, has_menu: bool) -> Window {
+    pub fn new(title: &str, width: i32, height: i32, has_menu: bool, gr: ::EvGroup) -> Window {
         let w = ::wrappers::Window::new(title, width, height, has_menu);
-        let id = UiImpl::new_widget(w.op.clone());
+        let id = UiImpl::new_widget(w.op.clone(), gr);
         Window {
             op: ApiOpaque(::WidgetType::Window, id),
             w,
+            gr,
         }
     }
 
-    /// And a container child like a layout, group or tab.
-    pub fn set_child<T: AsRef<ApiOpaque>>(&self, o: T) {
-        ::int_opaque(o.as_ref()).map(|o| self.w.set_child(o));
-        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1);
+    /// Widget should be a container like a layout, group or tab.
+    pub fn set_child<T: AsRef<ApiOpaque>>(&self, widget: T) {
+        ::int_opaque(widget.as_ref()).map(|o| self.w.set_child(o));
+        UiImpl::push_child(self.op.1, (widget.as_ref() as &ApiOpaque).1);
     }
 
     pub fn title(&self) -> &str {
@@ -51,22 +53,26 @@ impl Window {
         self.w.set_title(txt)
     }
 
-    pub fn reg_on_resize(&self, evid: EvId) {
+    pub fn reg_on_resize(&self) -> EvId {
+        let evid = ::EventLoop::ev_id(self.gr);
         if UiImpl::get_widget(self.op.1).is_none() {
-            return;
+            return evid;
         }
         let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.w.reg_on_resize(id);
         UiImpl::add_ev(self.op, id);
+        evid
     }
 
-    pub fn reg_on_closing(&self, evid: EvId) {
+    pub fn reg_on_closing(&self) -> EvId {
+        let evid = ::EventLoop::ev_id(self.gr);
         if UiImpl::get_widget(self.op.1).is_none() {
-            return;
+            return evid;
         }
         let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.w.reg_on_closing(id);
         UiImpl::add_on_closing(self.op, id);
+        evid
     }
 
     pub fn open_file(&self) -> &str {

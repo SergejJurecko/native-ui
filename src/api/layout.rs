@@ -6,36 +6,39 @@ use wrappers::Layout as ImplLayout;
 pub struct Layout {
     op: ApiOpaque,
     l: ImplLayout,
+    gr: ::EvGroup,
 }
 
 impl Layout {
-    pub fn from(o: ApiOpaque) -> Option<Layout> {
-        if o.0 == ::WidgetType::Layout {
-            if let Some(l1) = UiImpl::get_widget(o.1) {
-                return Some(Layout {
-                    op: o,
-                    l: ::wrappers::Layout::from(l1).unwrap(),
-                });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Layout> {
+    //     if o.0 == ::WidgetType::Layout {
+    //         if let Some(l1) = UiImpl::get_widget(o.1) {
+    //             return Some(Layout {
+    //                 op: o,
+    //                 l: ::wrappers::Layout::from(l1).unwrap(),
+    //             });
+    //         }
+    //     }
+    //     None
+    // }
 
-    pub fn new_vertical() -> Layout {
+    pub fn new_vertical(gr: ::EvGroup) -> Layout {
         let l = ImplLayout::new_vertical();
-        let id = UiImpl::new_widget(l.op.clone());
+        let id = UiImpl::new_widget(l.op.clone(), gr);
         Layout {
             op: ApiOpaque(::WidgetType::Layout, id),
             l,
+            gr,
         }
     }
 
-    pub fn new_horizontal() -> Layout {
+    pub fn new_horizontal(gr: ::EvGroup) -> Layout {
         let l = ImplLayout::new_horizontal();
-        let id = UiImpl::new_widget(l.op.clone());
+        let id = UiImpl::new_widget(l.op.clone(), gr);
         Layout {
             op: ApiOpaque(::WidgetType::Layout, id),
             l,
+            gr,
         }
     }
 

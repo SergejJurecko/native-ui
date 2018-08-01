@@ -6,27 +6,29 @@ use {wrappers::Combobox as ImplCombobox, EvId};
 pub struct Combobox {
     op: ApiOpaque,
     b: ImplCombobox,
+    gr: ::EvGroup,
 }
 
 impl Combobox {
-    pub fn from(o: ApiOpaque) -> Option<Combobox> {
-        if o.0 == ::WidgetType::Combobox {
-            if let Some(o1) = UiImpl::get_widget(o.1) {
-                return Some(Combobox {
-                    op: o,
-                    b: ImplCombobox::from(o1).unwrap(),
-                });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Combobox> {
+    //     if o.0 == ::WidgetType::Combobox {
+    //         if let Some(o1) = UiImpl::get_widget(o.1) {
+    //             return Some(Combobox {
+    //                 op: o,
+    //                 b: ImplCombobox::from(o1).unwrap(),
+    //             });
+    //         }
+    //     }
+    //     None
+    // }
 
-    pub fn new() -> Combobox {
+    pub fn new(gr: ::EvGroup) -> Combobox {
         let b = ImplCombobox::new();
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Combobox, b.op.1));
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Combobox, b.op.1), gr);
         Combobox {
             op: ApiOpaque(::WidgetType::Combobox, id),
             b,
+            gr,
         }
     }
 
@@ -51,13 +53,15 @@ impl Combobox {
         self.b.set_selected(v)
     }
 
-    pub fn reg_on_selected(&self, evid: EvId) {
+    pub fn reg_on_selected(&self) -> EvId {
+        let evid = ::EventLoop::ev_id(self.gr);
         if UiImpl::get_widget(self.op.1).is_none() {
-            return;
+            return evid;
         }
         let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.b.reg_on_selected(id);
         UiImpl::add_ev(self.op, id);
+        evid
     }
 }
 

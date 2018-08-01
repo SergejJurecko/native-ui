@@ -6,44 +6,46 @@ use EvId;
 #[derive(Copy, Clone)]
 pub struct Tray {
     op: ApiOpaque,
+    gr: ::EvGroup,
 }
 
 impl Tray {
-    pub fn from(o: ApiOpaque) -> Option<Tray> {
-        if o.0 == ::WidgetType::Button {
-            if let Some(o1) = UiImpl::get_widget(o.1) {
-                return Some(Tray { op: o });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Tray> {
+    //     if o.0 == ::WidgetType::Button {
+    //         if let Some(o1) = UiImpl::get_widget(o.1) {
+    //             return Some(Tray { op: o });
+    //         }
+    //     }
+    //     None
+    // }
 
-    fn from_impl(b: ImplTray) -> Tray {
-        let id = UiImpl::new_widget(::ImplOpaque(
-            ::WidgetType::Tray,
-            Box::into_raw(Box::new(b)) as _,
-        ));
+    fn from_impl(b: ImplTray, gr: ::EvGroup) -> Tray {
+        let id = UiImpl::new_widget(
+            ::ImplOpaque(::WidgetType::Tray, Box::into_raw(Box::new(b)) as _),
+            gr,
+        );
         Tray {
             op: ApiOpaque(::WidgetType::Button, id),
+            gr,
         }
     }
 
-    pub fn new(name: &str) -> Tray {
+    pub fn new(name: &str, gr: ::EvGroup) -> Tray {
         let b = ImplTray::new();
         b.set_text(name);
-        Self::from_impl(b)
+        Self::from_impl(b, gr)
     }
 
-    pub fn new_icon(buf: &[u8]) -> Tray {
+    pub fn new_icon(buf: &[u8], gr: ::EvGroup) -> Tray {
         let b = ImplTray::new();
         b.set_icon(buf);
-        Self::from_impl(b)
+        Self::from_impl(b, gr)
     }
 
-    pub fn new_icon_path(p: &::std::path::Path) -> Tray {
+    pub fn new_icon_path(p: &::std::path::Path, gr: ::EvGroup) -> Tray {
         let b = ImplTray::new();
         b.icon_from_file(p);
-        Self::from_impl(b)
+        Self::from_impl(b, gr)
     }
 
     pub fn add_quit(&self) {
@@ -62,7 +64,8 @@ impl Tray {
         }
     }
 
-    pub fn add_item(&self, txt: &str, evid: EvId) {
+    pub fn add_item(&self, txt: &str) -> EvId {
+        let evid = ::EventLoop::ev_id(self.gr);
         if let Some(tray) = UiImpl::get_widget(self.op.1) {
             if let Some(tray) = ImplTray::from(tray) {
                 let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
@@ -71,6 +74,7 @@ impl Tray {
                 tray.add_item(txt, id);
             }
         }
+        evid
     }
 }
 

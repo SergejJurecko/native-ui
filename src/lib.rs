@@ -12,9 +12,18 @@ pub use api::Opaque;
 pub use api::*;
 pub use ui::*;
 
-/// Event ID so different events can be distinguished when sent to a single controller.
+/// Event ID represents a single event that can be triggered any number of times.
 #[derive(PartialEq, Copy, Clone)]
 pub struct EvId(usize);
+/// Every widget belongs to an event group.
+#[derive(PartialEq, Copy, Clone)]
+pub struct EvGroup(u8);
+
+impl EvGroup {
+    pub fn is_member(&self, ev: EvId) -> bool {
+        (ev.0 & 255) == self.0 as usize
+    }
+}
 
 pub(crate) fn int_opaque(o: &api::Opaque) -> Option<ImplOpaque> {
     if let Some(op) = ui::UiImpl::get_widget(o.1) {
@@ -23,7 +32,6 @@ pub(crate) fn int_opaque(o: &api::Opaque) -> Option<ImplOpaque> {
     None
 }
 
-// use std::os::raw;
 struct RegId {
     widget: api::Opaque,
     // ctrl: usize,

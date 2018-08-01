@@ -6,27 +6,29 @@ use {wrappers::Checkbox as ImplCheckbox, EvId};
 pub struct Checkbox {
     op: ApiOpaque,
     b: ImplCheckbox,
+    gr: ::EvGroup,
 }
 
 impl Checkbox {
-    pub fn from(o: ApiOpaque) -> Option<Checkbox> {
-        if o.0 == ::WidgetType::Checkbox {
-            if let Some(o1) = UiImpl::get_widget(o.1) {
-                return Some(Checkbox {
-                    op: o,
-                    b: ImplCheckbox::from(o1).unwrap(),
-                });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Checkbox> {
+    //     if o.0 == ::WidgetType::Checkbox {
+    //         if let Some(o1) = UiImpl::get_widget(o.1) {
+    //             return Some(Checkbox {
+    //                 op: o,
+    //                 b: ImplCheckbox::from(o1).unwrap(),
+    //             });
+    //         }
+    //     }
+    //     None
+    // }
 
-    pub fn new(name: &str) -> Checkbox {
+    pub fn new(name: &str, gr: ::EvGroup) -> Checkbox {
         let b = ImplCheckbox::new(name);
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Checkbox, b.op.1));
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Checkbox, b.op.1), gr);
         Checkbox {
             op: ApiOpaque(::WidgetType::Checkbox, id),
             b,
+            gr,
         }
     }
 
@@ -58,13 +60,15 @@ impl Checkbox {
         self.b.checked()
     }
 
-    pub fn reg_on_toggled(&self, evid: EvId) {
+    pub fn reg_on_toggled(&self) -> EvId {
+        let evid = ::EventLoop::ev_id(self.gr);
         if UiImpl::get_widget(self.op.1).is_none() {
-            return;
+            return evid;
         }
         let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.b.reg_on_toggled(id);
         UiImpl::add_ev(self.op, id);
+        evid
     }
 }
 

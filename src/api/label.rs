@@ -6,27 +6,29 @@ use wrappers::Label as ImplLabel;
 pub struct Label {
     op: ApiOpaque,
     b: ImplLabel,
+    gr: ::EvGroup,
 }
 
 impl Label {
-    pub fn from(o: ApiOpaque) -> Option<Label> {
-        if o.0 == ::WidgetType::Label {
-            if let Some(o1) = UiImpl::get_widget(o.1) {
-                return Some(Label {
-                    op: o,
-                    b: ImplLabel::from(o1).unwrap(),
-                });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Label> {
+    //     if o.0 == ::WidgetType::Label {
+    //         if let Some(o1) = UiImpl::get_widget(o.1) {
+    //             return Some(Label {
+    //                 op: o,
+    //                 b: ImplLabel::from(o1).unwrap(),
+    //             });
+    //         }
+    //     }
+    //     None
+    // }
 
-    pub fn new(name: &str) -> Label {
+    pub fn new(name: &str, gr: ::EvGroup) -> Label {
         let b = ImplLabel::new(name);
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Label, b.op.1));
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Label, b.op.1), gr);
         Label {
             op: ApiOpaque(::WidgetType::Label, id),
             b,
+            gr,
         }
     }
 

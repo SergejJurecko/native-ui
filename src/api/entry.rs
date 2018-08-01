@@ -6,45 +6,49 @@ use {wrappers::Entry as ImplEntry, EvId};
 pub struct Entry {
     op: ApiOpaque,
     b: ImplEntry,
+    gr: ::EvGroup,
 }
 
 impl Entry {
-    pub fn from(o: ApiOpaque) -> Option<Entry> {
-        if o.0 == ::WidgetType::Entry {
-            if let Some(o1) = UiImpl::get_widget(o.1) {
-                return Some(Entry {
-                    op: o,
-                    b: ImplEntry::from(o1).unwrap(),
-                });
-            }
-        }
-        None
-    }
+    // pub fn from(o: ApiOpaque) -> Option<Entry> {
+    //     if o.0 == ::WidgetType::Entry {
+    //         if let Some(o1) = UiImpl::get_widget(o.1) {
+    //             return Some(Entry {
+    //                 op: o,
+    //                 b: ImplEntry::from(o1).unwrap(),
+    //             });
+    //         }
+    //     }
+    //     None
+    // }
 
-    pub fn new() -> Entry {
+    pub fn new(gr: ::EvGroup) -> Entry {
         let b = ImplEntry::new();
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1));
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1), gr);
         Entry {
             op: ApiOpaque(::WidgetType::Entry, id),
             b,
+            gr,
         }
     }
 
-    pub fn new_password() -> Entry {
+    pub fn new_password(gr: ::EvGroup) -> Entry {
         let b = ImplEntry::new_password();
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1));
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1), gr);
         Entry {
             op: ApiOpaque(::WidgetType::Entry, id),
             b,
+            gr,
         }
     }
 
-    pub fn new_search() -> Entry {
+    pub fn new_search(gr: ::EvGroup) -> Entry {
         let b = ImplEntry::new_search();
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1));
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1), gr);
         Entry {
             op: ApiOpaque(::WidgetType::Entry, id),
             b,
+            gr,
         }
     }
 
@@ -76,13 +80,15 @@ impl Entry {
         self.b.read_only()
     }
 
-    pub fn reg_on_changed(&self, evid: EvId) {
+    pub fn reg_on_changed(&self) -> EvId {
+        let evid = ::EventLoop::ev_id(self.gr);
         if UiImpl::get_widget(self.op.1).is_none() {
-            return;
+            return evid;
         }
         let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.b.reg_on_changed(id);
         UiImpl::add_ev(self.op, id);
+        evid
     }
 }
 

@@ -16,16 +16,23 @@ struct UiState {
     mq_eid: EvId,
     widgets: HashMap<usize, Widget>,
     evgen: usize,
+    max_group: u8,
 }
 
 impl UiState {
-    pub fn get_id(&mut self) -> usize {
-        let mut id = self.evgen.wrapping_add(1);
-        if id == usize::max_value() || id < 10 {
-            id = 10;
-        }
+    pub fn get_id(&mut self, group: u8) -> usize {
+        let id = self.evgen.wrapping_add(1);
         self.evgen = id;
-        id
+        (id << 8) | (group as usize)
+    }
+
+    pub fn get_group(&mut self) -> u8 {
+        if self.max_group < u8::max_value() {
+            self.max_group += 1;
+        } else {
+            panic!("Group limit is 254");
+        }
+        self.max_group
     }
 }
 
@@ -52,7 +59,8 @@ thread_local!(static UISTATE: RefCell<UiState> = RefCell::new(UiState {
     // mq_cid: CtrlId(0),
     mq_eid: EvId(0),
     widgets: HashMap::default(),
-    evgen: 100,
+    evgen: 0,
+    max_group: 0,
 }));
 
 // fn gt<'a, T>(p_state: *mut raw::c_void) -> &'a mut EvReg<T> {
@@ -94,6 +102,7 @@ pub(crate) unsafe extern "C" fn on_close_event(reg: *mut raw::c_void) -> i32 {
     let reg_id = grid(reg);
     let reg: &mut EvStore = gt(REG.with(|r| *r.borrow_mut()));
     reg.q.push_back(reg_id.ev);
+    UiImpl::close(reg_id.widget.1);
     1
 }
 
@@ -146,14 +155,8 @@ impl EventLoop {
         state
     }
 
-    pub fn should_stop(&self, ev: EvId) -> bool {
-        ev == self.qev
-    }
-
-    // pub fn run(&self) {
-    //     unsafe {
-    //         ffi::uiMain();
-    //     }
+    // pub fn should_stop(&self, ev: EvId) -> bool {
+    //     ev == self.qev
     // }
 
     /// If error returned ui is done.
@@ -184,19 +187,28 @@ impl EventLoop {
         }
     }
 
-    /// Generate an unique ID used to match event event was triggered.
-    pub fn ev_id(&self) -> EvId {
+    pub(crate) fn ev_id(g: ::EvGroup) -> EvId {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
-            EvId(state.get_id())
+            EvId(state.get_id(g.0))
+        })
+    }
+
+    /// Create an event group to put widgets in.
+    pub fn new_group(&self) -> ::EvGroup {
+        UISTATE.with(|r| {
+            let state = &mut *r.borrow_mut();
+            ::EvGroup(state.get_group())
         })
     }
 
     pub fn show(&self, apiw: &api::Window) {
+        println!("show {}", apiw.op.1);
         unsafe {
             UISTATE.with(|r| {
                 let state = &mut *r.borrow_mut();
                 if let Some(w) = state.widgets.get_mut(&apiw.op.1) {
+                    println!("show1");
                     if w.on_closing == ::std::ptr::null_mut() {
                         let id = Box::into_raw(Box::new(::RegId::new(
                             apiw.op,
@@ -374,12 +386,12 @@ impl UiImpl {
         }
     }
 
-    pub fn new_widget(o: ImplOpaque) -> usize {
+    pub fn new_widget(o: ImplOpaque, g: ::EvGroup) -> usize {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
-            let id = state.get_id();
+            let id = state.get_id(g.0);
             state.widgets.insert(id, Widget::new(o));
-            state.evgen
+            id
         })
     }
 }
