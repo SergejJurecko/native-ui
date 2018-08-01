@@ -16,15 +16,11 @@ static INIT: Once = ONCE_INIT;
 thread_local!(static EVENTS: RefCell<HashMap<*mut Object, *mut ::RegId>> = RefCell::new(HashMap::default()));
 
 extern "C" fn on_button_click(this: &Object, _cmd: Sel, target: id) {
-    // let name = unsafe {
-    //     let ptr: u64 = *this.get_ivar("_name");
-    //     // nsstring_decode(ptr as id)
-    // };
     EVENTS.with(|r| {
         let p = this as *const Object;
         if let Some(reg) = (*r.borrow()).get(&target) {
             unsafe {
-                ::ui::on_event::<Tray>(*reg as _);
+                ::ui::on_event(*reg as _);
             }
         }
     });

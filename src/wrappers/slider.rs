@@ -1,4 +1,4 @@
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct Slider {
@@ -30,7 +30,7 @@ impl Slider {
         unsafe { ffi::uiSliderValue(self.op.1 as _) }
     }
 
-    pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_changed<T>(&self, p: *mut ::RegId) {
         // let id = ::std::boxed::Box::new(RegId::new(
         //     WidgetType::Slider,
         //     ctrler.id().0,

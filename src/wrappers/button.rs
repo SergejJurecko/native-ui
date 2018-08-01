@@ -49,7 +49,7 @@ impl Button {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiButton, reg: *mut raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiButton>(reg);
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for Button {

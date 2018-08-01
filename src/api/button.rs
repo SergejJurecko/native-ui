@@ -1,6 +1,6 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use {wrappers::Button as ImplButton, Controller, EvId};
+use {wrappers::Button as ImplButton, EvId};
 
 #[derive(Copy, Clone)]
 pub struct Button {
@@ -44,11 +44,11 @@ impl Button {
         self.b.text()
     }
 
-    pub fn reg_on_click<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_click(&self, evid: EvId) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
-        let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+        let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.b.reg_on_click(id);
         UiImpl::add_ev(self.op, id);
     }

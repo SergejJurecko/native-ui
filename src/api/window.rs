@@ -1,6 +1,6 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use {wrappers::Window as ImplWindow, Controller, EvId};
+use {wrappers::Window as ImplWindow, EvId};
 
 /// Create windows as well as open message boxes and open/save dialogs. Once created and child is set open with Ui::show.
 #[derive(Copy, Clone)]
@@ -51,20 +51,20 @@ impl Window {
         self.w.set_title(txt)
     }
 
-    pub fn reg_on_resize<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_resize(&self, evid: EvId) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
-        let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+        let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.w.reg_on_resize(id);
         UiImpl::add_ev(self.op, id);
     }
 
-    pub fn reg_on_closing<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_closing(&self, evid: EvId) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
-        let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+        let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.w.reg_on_closing(id);
         UiImpl::add_on_closing(self.op, id);
     }

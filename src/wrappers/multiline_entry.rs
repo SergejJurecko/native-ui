@@ -1,5 +1,5 @@
 use std::ffi::{CStr, CString};
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, EvId, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct MultilineEntry {
@@ -69,7 +69,7 @@ impl MultilineEntry {
         }
     }
 
-    pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_changed<T>(&self, p: *mut ::RegId) {
         // let id = ::std::boxed::Box::new(RegId::new(
         //     WidgetType::MultilineEntry,
         //     ctrler.id().0,

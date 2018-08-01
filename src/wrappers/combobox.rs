@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct Combobox {
@@ -50,7 +50,7 @@ impl Combobox {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiCombobox, reg: *mut ::std::os::raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiCombobox>(reg);
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for Combobox {

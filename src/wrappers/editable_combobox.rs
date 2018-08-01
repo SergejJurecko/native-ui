@@ -1,5 +1,5 @@
 use std::ffi::{CStr, CString};
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct EditableCombobox {
@@ -58,7 +58,7 @@ impl EditableCombobox {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiEditableCombobox, reg: *mut ::std::os::raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiEditableCombobox>(reg);
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for EditableCombobox {

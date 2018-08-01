@@ -5,14 +5,14 @@ use std::collections::VecDeque;
 use std::os::raw;
 use std::ptr;
 use wrappers;
-use {api, ffi, Controller, CtrlId, EvId, ImplOpaque, RegId};
+use {api, ffi, EvId, ImplOpaque, RegId};
 
-struct EvReg<T> {
-    events: HashMap<CtrlId, Box<Controller<T>>>,
+struct EvStore {
+    q: VecDeque<EvId>,
 }
 
 struct UiState {
-    mq_cid: CtrlId,
+    // mq_cid: CtrlId,
     mq_eid: EvId,
     widgets: HashMap<usize, Widget>,
     evgen: usize,
@@ -20,9 +20,9 @@ struct UiState {
 
 impl UiState {
     pub fn get_id(&mut self) -> usize {
-        let id = self.evgen.wrapping_add(1);
-        if id == usize::max_value() {
-            return self.get_id();
+        let mut id = self.evgen.wrapping_add(1);
+        if id == usize::max_value() || id < 10 {
+            id = 10;
         }
         self.evgen = id;
         id
@@ -49,95 +49,84 @@ impl Widget {
 
 thread_local!(static REG: RefCell<*mut raw::c_void> = RefCell::new(ptr::null_mut()));
 thread_local!(static UISTATE: RefCell<UiState> = RefCell::new(UiState {
-    mq_cid: CtrlId(0),
+    // mq_cid: CtrlId(0),
     mq_eid: EvId(0),
     widgets: HashMap::default(),
     evgen: 100,
 }));
 
-fn gt<'a, T>(p_state: *mut raw::c_void) -> &'a mut EvReg<T> {
-    unsafe { &mut *(p_state as *mut EvReg<T>) }
+// fn gt<'a, T>(p_state: *mut raw::c_void) -> &'a mut EvReg<T> {
+//     unsafe { &mut *(p_state as *mut EvReg<T>) }
+// }
+
+fn gt<'a>(p_state: *mut raw::c_void) -> &'a mut EvStore {
+    unsafe { &mut *(p_state as *mut EvStore) }
 }
 
 fn grid<'a>(p_state: *mut raw::c_void) -> &'a mut RegId {
     unsafe { &mut *(p_state as *mut RegId) }
 }
 
-pub(crate) unsafe extern "C" fn on_event<T>(reg: *mut raw::c_void) {
+pub(crate) unsafe extern "C" fn on_event(reg: *mut raw::c_void) {
     let reg_id = grid(reg);
-    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
-        // let c = gctrl(c);
-        c.event(EvId(reg_id.ev), reg_id.widget);
-    }
+    let reg: &mut EvStore = gt(REG.with(|r| *r.borrow_mut()));
+    reg.q.push_back(reg_id.ev);
+    // if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
+    //     // let c = gctrl(c);
+    //     c.event(EvId(reg_id.ev), reg_id.widget);
+    // }
 }
 
-pub(crate) unsafe extern "C" fn on_menu_event<T>(
-    _p: *mut ffi::uiMenuItem,
-    _w: *mut ffi::uiWindow,
-    reg: *mut raw::c_void,
-) {
-    let reg_id = grid(reg);
-    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
-        // let c = gctrl(c);
-        c.event(EvId(reg_id.ev), reg_id.widget);
-    }
-}
+// pub(crate) unsafe extern "C" fn on_menu_event<T>(
+//     _p: *mut ffi::uiMenuItem,
+//     _w: *mut ffi::uiWindow,
+//     reg: *mut raw::c_void,
+// ) {
+//     let reg_id = grid(reg);
+//     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+//     if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
+//         // let c = gctrl(c);
+//         c.event(EvId(reg_id.ev), reg_id.widget);
+//     }
+// }
 
-pub(crate) unsafe extern "C" fn on_close_event<T>(p: *mut T, reg: *mut raw::c_void) -> i32 {
+pub(crate) unsafe extern "C" fn on_close_event(reg: *mut raw::c_void) -> i32 {
     let reg_id = grid(reg);
-    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
-        // let c = gctrl(c);
-        if c.close_event(EvId(reg_id.ev), reg_id.widget) {
-            UiImpl::close(reg_id.widget.1);
-            return 1;
-        } else {
-            return 0;
-        }
-    } else {
-        UiImpl::close(reg_id.widget.1);
-    }
+    let reg: &mut EvStore = gt(REG.with(|r| *r.borrow_mut()));
+    reg.q.push_back(reg_id.ev);
     1
 }
 
-pub(crate) unsafe extern "C" fn on_quit<T>(reg: *mut raw::c_void) -> i32 {
+pub(crate) unsafe extern "C" fn on_quit(reg: *mut raw::c_void) -> i32 {
     let reg_id = grid(reg);
-    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-    if let Some(c) = reg.events.get_mut(&CtrlId(reg_id.ctrl)) {
-        // let c = gctrl(c);
-        if c.close_event(EvId(reg_id.ev), reg_id.widget) {
-            UiImpl::close_windows();
-        // ffi::uiControlDestroy(p as _);
-        } else {
-        }
-    }
-    // unsafe {
-    //     ffi::uiControlDestroy(p as _);
-    // }
+    let reg: &mut EvStore = gt(REG.with(|r| *r.borrow_mut()));
+    reg.q.push_back(reg_id.ev);
+    UiImpl::close_windows();
     0
 }
 
-pub(crate) unsafe extern "C" fn on_queue<T>(data: *mut raw::c_void) {
-    let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-    let id = UISTATE.with(|r| r.borrow().mq_cid.0);
-    if let Some(c) = reg.events.get_mut(&CtrlId(id)) {
-        c.msg(&Box::from_raw(data as _));
-    }
-}
+// pub(crate) unsafe extern "C" fn on_queue<T>(data: *mut raw::c_void) {
+//     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+//     let id = UISTATE.with(|r| r.borrow().mq_cid.0);
+//     if let Some(c) = reg.events.get_mut(&CtrlId(id)) {
+//         c.msg(&Box::from_raw(data as _));
+//     }
+// }
 
 /// Inits and runs ui loop
 pub struct EventLoop {
     opt: ffi::uiInitOptions,
+    steps: bool,
+    qev: EvId,
+    done: bool,
 }
 
 impl EventLoop {
-    pub fn new<T>() -> EventLoop {
+    pub fn new() -> EventLoop {
         REG.with(|r| {
             if *r.borrow() == ptr::null_mut() {
-                let res: *mut EvReg<T> = Box::into_raw(Box::new(EvReg {
-                    events: HashMap::default(),
+                let res: *mut EvStore = Box::into_raw(Box::new(EvStore {
+                    q: VecDeque::default(),
                 }));
                 *r.borrow_mut() = res as _;
                 // res
@@ -145,69 +134,65 @@ impl EventLoop {
         });
         let mut state = EventLoop {
             opt: ffi::uiInitOptions { Size: 0 },
-            // reg,
+            steps: false,
+            qev: EvId(0),
+            done: false,
         };
         unsafe {
             ffi::uiInit(&mut state.opt);
             // ffi::uiMainSteps();
         }
+        Self::reg_on_should_quit(state.qev);
         state
     }
 
-    pub fn run(&self) {
-        unsafe {
-            ffi::uiMain();
+    pub fn should_stop(&self, ev: EvId) -> bool {
+        ev == self.qev
+    }
+
+    // pub fn run(&self) {
+    //     unsafe {
+    //         ffi::uiMain();
+    //     }
+    // }
+
+    /// If error returned ui is done.
+    pub fn step(&mut self, wait: bool) -> Result<Option<EvId>, ()> {
+        if self.done {
+            return Err(());
         }
-        // loop {
-        //     unsafe { if ffi::uiMainStep(100) == 0 {} }
-        // }
-    }
-}
-
-impl Drop for EventLoop {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::uiUninit();
+        if !self.steps {
+            unsafe {
+                ffi::uiMainSteps();
+            }
+            self.steps = true;
         }
-    }
-}
-
-/// Registering (activating) controllers, show windows, sending quit signal, registering for quit,
-/// registering for messages from other threads.
-pub struct Ui<T>(::std::marker::PhantomData<T>);
-impl<T> Ui<T> {
-    /// Activate controller by giving it away to Ui to execute on events.
-    pub fn reg_ctrler(ctrler: Box<Controller<T>>) {
-        let gt = gt(REG.with(|r| *r.borrow()));
-        gt.events.insert(CtrlId(ctrler.id().0), ctrler);
-    }
-
-    /// Send message to another controller.
-    pub fn send_msg(ctrler: CtrlId, msg: &T) {
-        let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-        if let Some(c) = reg.events.get_mut(&ctrler) {
-            // let c = gctrl(c);
-            c.msg(&msg);
+        let r = unsafe { ffi::uiMainStep(if wait { 1 } else { 0 }) };
+        let reg: &mut EvStore = gt(REG.with(|r| *r.borrow_mut()));
+        if r > 0 {
+            match reg.q.pop_front() {
+                Some(ev) if ev == self.qev => {
+                    self.done = true;
+                    self.quit();
+                    Err(())
+                }
+                r => Ok(r),
+            }
+        } else {
+            self.done = true;
+            Err(())
         }
     }
 
     /// Generate an unique ID used to match event event was triggered.
-    pub fn ev_id() -> EvId {
+    pub fn ev_id(&self) -> EvId {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
             EvId(state.get_id())
         })
     }
 
-    /// Generate an unique controller ID so messages can be sent between them.
-    pub fn ctrl_id() -> CtrlId {
-        UISTATE.with(|r| {
-            let state = &mut *r.borrow_mut();
-            CtrlId(state.get_id())
-        })
-    }
-
-    pub fn show(apiw: &api::Window) {
+    pub fn show(&self, apiw: &api::Window) {
         unsafe {
             UISTATE.with(|r| {
                 let state = &mut *r.borrow_mut();
@@ -215,8 +200,8 @@ impl<T> Ui<T> {
                     if w.on_closing == ::std::ptr::null_mut() {
                         let id = Box::into_raw(Box::new(::RegId::new(
                             apiw.op,
-                            usize::max_value(),
-                            usize::max_value(),
+                            EvId(usize::max_value()),
+                            // usize::max_value(),
                         )));
                         w.on_closing = id;
                         let w = wrappers::Window::from(w.op).unwrap();
@@ -234,45 +219,73 @@ impl<T> Ui<T> {
     //     }
     // }
 
-    pub fn quit() {
+    pub fn quit(&self) {
+        // UiImpl::close_windows();
         unsafe {
             ffi::uiQuit();
         }
     }
 
-    pub fn reg_on_should_quit(ctrler: &Controller<T>, evid: EvId) {
+    fn reg_on_should_quit(evid: EvId) {
         let id = ::std::boxed::Box::new(RegId::new(
             ::Opaque(::WidgetType::Null, usize::max_value()),
-            ctrler.id().0,
-            evid.0,
+            evid,
         ));
         unsafe {
-            ffi::uiOnShouldQuit(Some(::ui::on_quit::<T>), Box::into_raw(id) as _);
+            ffi::uiOnShouldQuit(Some(::ui::on_quit), Box::into_raw(id) as _);
         }
     }
 
-    /// Send message to controller registered with reg_on_main_queue.
-    /// Can be called from any thread.
-    pub fn main_queue(msg: T) {
+    // /// Send message to controller registered with reg_on_main_queue.
+    // /// Can be called from any thread.
+    // pub fn main_queue(msg: T) {
+    //     unsafe {
+    //         ffi::uiQueueMain(
+    //             Some(::ui::on_queue::<T>),
+    //             // Box::into_raw(id) as _,
+    //             Box::into_raw(Box::new(msg)) as _,
+    //         );
+    //     }
+    // }
+
+    // /// Register controller for receiving Ui::main_queue events from other threads.
+    // pub fn reg_on_main_queue(ctrler: &Controller<T>, evid: EvId) {
+    //     // let gt: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+    //     UISTATE.with(|r| {
+    //         let state = &mut *r.borrow_mut();
+    //         state.mq_cid = ctrler.id();
+    //         state.mq_eid = evid;
+    //     });
+    // }
+}
+
+impl Drop for EventLoop {
+    fn drop(&mut self) {
         unsafe {
-            ffi::uiQueueMain(
-                Some(::ui::on_queue::<T>),
-                // Box::into_raw(id) as _,
-                Box::into_raw(Box::new(msg)) as _,
-            );
+            ffi::uiUninit();
         }
-    }
-
-    /// Register controller for receiving Ui::main_queue events from other threads.
-    pub fn reg_on_main_queue(ctrler: &Controller<T>, evid: EvId) {
-        // let gt: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-        UISTATE.with(|r| {
-            let state = &mut *r.borrow_mut();
-            state.mq_cid = ctrler.id();
-            state.mq_eid = evid;
-        });
     }
 }
+
+// /// Registering (activating) controllers, show windows, sending quit signal, registering for quit,
+// /// registering for messages from other threads.
+// pub struct Ui;
+// impl Ui {
+//     // /// Activate controller by giving it away to Ui to execute on events.
+//     // pub fn reg_ctrler(ctrler: Box<Controller<T>>) {
+//     //     let gt = gt(REG.with(|r| *r.borrow()));
+//     //     gt.events.insert(CtrlId(ctrler.id().0), ctrler);
+//     // }
+
+//     // /// Send message to another controller.
+//     // pub fn send_msg(ctrler: CtrlId, msg: &T) {
+//     //     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
+//     //     if let Some(c) = reg.events.get_mut(&ctrler) {
+//     //         // let c = gctrl(c);
+//     //         c.msg(&msg);
+//     //     }
+//     // }
+// }
 
 pub(crate) struct UiImpl;
 impl UiImpl {

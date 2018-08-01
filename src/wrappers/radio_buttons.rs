@@ -1,6 +1,6 @@
 use std::ffi::CString;
 use std::os::raw;
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct RadioButtons {
@@ -39,7 +39,7 @@ impl RadioButtons {
         }
     }
 
-    pub fn reg_on_selected<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_selected<T>(&self, p: *mut ::RegId) {
         // let id = ::std::boxed::Box::new(RegId::new(
         //     WidgetType::RadioButtons,
         //     ctrler.id().0,

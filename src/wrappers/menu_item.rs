@@ -1,4 +1,4 @@
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, EvId, ImplOpaque as Opaque, RegId, WidgetType};
 // use std::ffi::{CStr, CString};
 
 #[derive(Copy, Clone)]
@@ -42,7 +42,7 @@ impl MenuItem {
         }
     }
 
-    pub fn reg_on_clicked<T>(&self, ctrler: &Controller<T>, evid: &EvId) {
+    pub fn reg_on_clicked<T>(&self, p: *mut ::RegId) {
         // let id = ::std::boxed::Box::new(RegId::new(
         //     WidgetType::MenuItem,
         //     ctrler.id().0,

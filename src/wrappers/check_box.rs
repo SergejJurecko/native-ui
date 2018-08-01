@@ -1,5 +1,5 @@
 use std::ffi::{CStr, CString};
-use {ffi, Controller, EvId, ImplOpaque as Opaque};
+use {ffi, ImplOpaque as Opaque};
 
 #[derive(Copy, Clone)]
 pub(crate) struct Checkbox {
@@ -69,7 +69,7 @@ impl Checkbox {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiCheckbox, reg: *mut ::std::os::raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiCheckbox>(reg);
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for Checkbox {

@@ -1,6 +1,6 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use {wrappers::Checkbox as ImplCheckbox, Controller, EvId};
+use {wrappers::Checkbox as ImplCheckbox, EvId};
 
 #[derive(Copy, Clone)]
 pub struct Checkbox {
@@ -58,11 +58,11 @@ impl Checkbox {
         self.b.checked()
     }
 
-    pub fn reg_on_toggled<T>(&self, ctrler: &Controller<T>, evid: &EvId) {
+    pub fn reg_on_toggled(&self, evid: EvId) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
-        let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+        let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.b.reg_on_toggled(id);
         UiImpl::add_ev(self.op, id);
     }

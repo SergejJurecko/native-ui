@@ -1,6 +1,6 @@
 use std::ffi::{CStr, CString};
 use std::os::raw;
-use {ffi, Controller, EvId, ImplOpaque as Opaque, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 /// Create windows as well as open message boxes and open/save dialogs. Once created and child is set open with Ui::show.
 #[derive(Copy, Clone)]
@@ -64,11 +64,7 @@ impl Window {
 
     pub fn reg_on_closing(&self, p: *mut ::RegId) {
         unsafe {
-            ffi::uiWindowOnClosing(
-                self.op.1 as _,
-                Some(::ui::on_close_event::<ffi::uiWindow>),
-                p as *mut raw::c_void,
-            );
+            ffi::uiWindowOnClosing(self.op.1 as _, Some(on_close_event), p as *mut raw::c_void);
         }
     }
 
@@ -163,7 +159,14 @@ impl Window {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiWindow, reg: *mut ::std::os::raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiWindow>(reg);
+    ::ui::on_event(reg);
+}
+
+unsafe extern "C" fn on_close_event(
+    _: *mut ffi::uiWindow,
+    reg: *mut ::std::os::raw::c_void,
+) -> i32 {
+    ::ui::on_close_event(reg)
 }
 
 impl AsRef<Opaque> for Window {

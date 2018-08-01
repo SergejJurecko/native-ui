@@ -46,7 +46,7 @@ impl DateTimePicker {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiDateTimePicker, reg: *mut ::std::os::raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiDateTimePicker>(reg);
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for DateTimePicker {

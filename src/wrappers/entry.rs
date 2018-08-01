@@ -1,5 +1,5 @@
 use std::ffi::{CStr, CString};
-use {ffi, Controller, EvId, ImplOpaque as Opaque, RegId, WidgetType};
+use {ffi, ImplOpaque as Opaque, WidgetType};
 
 #[derive(Copy, Clone)]
 pub(crate) struct Entry {
@@ -81,7 +81,7 @@ impl Entry {
 }
 
 unsafe extern "C" fn on_event(_: *mut ffi::uiEntry, reg: *mut ::std::os::raw::c_void) {
-    ::ui::on_event::<*mut ffi::uiEntry>(reg);
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for Entry {

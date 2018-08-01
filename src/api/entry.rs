@@ -1,6 +1,6 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use {wrappers::Entry as ImplEntry, Controller, EvId};
+use {wrappers::Entry as ImplEntry, EvId};
 
 #[derive(Copy, Clone)]
 pub struct Entry {
@@ -76,11 +76,11 @@ impl Entry {
         self.b.read_only()
     }
 
-    pub fn reg_on_changed<T>(&self, ctrler: &Controller<T>, evid: EvId) {
+    pub fn reg_on_changed(&self, evid: EvId) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
-        let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+        let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
         self.b.reg_on_changed(id);
         UiImpl::add_ev(self.op, id);
     }

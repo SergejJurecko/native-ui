@@ -1,7 +1,7 @@
 use super::Opaque as ApiOpaque;
 use os::Tray as ImplTray;
 use ui::UiImpl;
-use {Controller, EvId};
+use EvId;
 
 #[derive(Copy, Clone)]
 pub struct Tray {
@@ -62,10 +62,10 @@ impl Tray {
         }
     }
 
-    pub fn add_item<T>(&self, txt: &str, ctrler: &Controller<T>, evid: EvId) {
+    pub fn add_item(&self, txt: &str, evid: EvId) {
         if let Some(tray) = UiImpl::get_widget(self.op.1) {
             if let Some(tray) = ImplTray::from(tray) {
-                let id = Box::into_raw(Box::new(::RegId::new(self.op, ctrler.id().0, evid.0)));
+                let id = Box::into_raw(Box::new(::RegId::new(self.op, evid)));
                 // self.b.reg_on_click(id);
                 UiImpl::add_ev(self.op, id);
                 tray.add_item(txt, id);
