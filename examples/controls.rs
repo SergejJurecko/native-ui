@@ -1,11 +1,17 @@
 extern crate native_ui;
-use native_ui::{Button, EventLoop, Layout, Tray, Window};
+use native_ui::{Button, Config, EventLoop, Layout, Tray, Window};
 
 fn main() {
-    let mut el = EventLoop::new();
+    let mut el = EventLoop::new(None);
     let btn_grp = el.new_group();
     let tray_grp = el.new_group();
     let other = el.new_group();
+
+    let tray = Tray::new("HELLO", tray_grp);
+    let tray_ev = tray.add_item("item1");
+    tray.add_separator();
+    tray.add_quit();
+
     // setup gui and create events.
     let win = Window::new("My window", 640, 480, false, other);
     let win_close = win.reg_on_closing();
@@ -20,11 +26,6 @@ fn main() {
     layout.append(&btn1, true);
     layout.append(&btn2, true);
     win.set_child(&layout);
-
-    let tray = Tray::new("HELLO", tray_grp);
-    let tray_ev = tray.add_item("item1");
-    tray.add_separator();
-    tray.add_quit();
 
     let btn1_ev = btn1.reg_on_click();
     let btn2_ev = btn2.reg_on_click();

@@ -12,6 +12,11 @@ pub use api::Opaque;
 pub use api::*;
 pub use ui::*;
 
+#[derive(Default, Copy, Clone)]
+pub struct Config {
+    pub tray_only: bool,
+}
+
 /// Event ID represents a single event that can be triggered any number of times.
 #[derive(PartialEq, Copy, Clone)]
 pub struct EvId(usize);

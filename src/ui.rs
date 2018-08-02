@@ -131,7 +131,7 @@ pub struct EventLoop {
 }
 
 impl EventLoop {
-    pub fn new() -> EventLoop {
+    pub fn new(cfg: Option<::Config>) -> EventLoop {
         REG.with(|r| {
             if *r.borrow() == ptr::null_mut() {
                 let res: *mut EvStore = Box::into_raw(Box::new(EvStore {
@@ -151,6 +151,7 @@ impl EventLoop {
             ffi::uiInit(&mut state.opt);
             // ffi::uiMainSteps();
         }
+        ::os::init(cfg);
         Self::reg_on_should_quit(state.qev);
         state
     }

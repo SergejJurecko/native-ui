@@ -5,8 +5,8 @@ use wrappers::Separator as ImplSeparator;
 #[derive(Copy, Clone)]
 pub struct Separator {
     op: ApiOpaque,
-    b: ImplSeparator,
-    gr: ::EvGroup,
+    // b: ImplSeparator,
+    // gr: ::EvGroup,
 }
 
 impl Separator {
@@ -24,8 +24,8 @@ impl Separator {
         let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Separator, b.op.1), gr);
         Separator {
             op: ApiOpaque(::WidgetType::Separator, id),
-            b,
-            gr,
+            // b,
+            // gr,
         }
     }
 }

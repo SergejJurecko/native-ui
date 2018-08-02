@@ -30,20 +30,19 @@ impl Slider {
         unsafe { ffi::uiSliderValue(self.op.1 as _) }
     }
 
-    pub fn reg_on_changed<T>(&self, p: *mut ::RegId) {
-        // let id = ::std::boxed::Box::new(RegId::new(
-        //     WidgetType::Slider,
-        //     ctrler.id().0,
-        //     evid.0,
-        // ));
-        // unsafe {
-        //     ffi::uiSliderOnChanged(
-        //         self.p,
-        //         Some(::ui::on_event::<ffi::uiSlider>),
-        //         Box::into_raw(id) as *mut raw::c_void,
-        //     );
-        // }
+    pub fn reg_on_changed(&self, p: *mut ::RegId) {
+        unsafe {
+            ffi::uiSliderOnChanged(
+                self.op.1 as _,
+                Some(on_event),
+                p as *mut ::std::os::raw::c_void,
+            );
+        }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiSlider, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for Slider {

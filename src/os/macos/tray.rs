@@ -1,5 +1,6 @@
 use super::cocoa::appkit::{
-    NSButton, NSImage, NSMenu, NSMenuItem, NSStatusBar, NSStatusItem, NSVariableStatusItemLength,
+    self, NSApp, NSApplication, NSButton, NSImage, NSMenu, NSMenuItem, NSStatusBar, NSStatusItem,
+    NSVariableStatusItemLength,
 };
 use super::cocoa::base::{id, nil, selector};
 use super::cocoa::foundation::{NSAutoreleasePool, NSData, NSProcessInfo, NSString};
@@ -38,6 +39,17 @@ impl Tray {
             return Some(unsafe { &mut *(o.1 as *mut Tray) });
         }
         None
+    }
+
+    pub fn tray_only(b: bool) {
+        unsafe {
+            let app = NSApp();
+            if b {
+                app.setActivationPolicy_(appkit::NSApplicationActivationPolicyAccessory);
+            } else {
+                app.setActivationPolicy_(appkit::NSApplicationActivationPolicyRegular);
+            }
+        }
     }
 
     pub fn new() -> Tray {

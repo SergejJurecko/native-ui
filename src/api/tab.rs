@@ -1,6 +1,6 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use {wrappers::Tab as ImplTab, EvId};
+use wrappers::Tab as ImplTab;
 
 #[derive(Copy, Clone)]
 pub struct Tab {
