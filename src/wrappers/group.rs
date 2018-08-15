@@ -7,12 +7,12 @@ pub(crate) struct Group {
 }
 
 impl Group {
-    pub fn from(o: Opaque) -> Option<Group> {
-        if o.0 == ::WidgetType::Group {
-            return Some(Group { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Group> {
+    //     if o.0 == ::WidgetType::Group {
+    //         return Some(Group { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new(name: &str) -> Group {
         let s = CString::new(name).unwrap();

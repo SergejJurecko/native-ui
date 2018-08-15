@@ -7,12 +7,12 @@ pub(crate) struct Tab {
 }
 
 impl Tab {
-    pub fn from(o: Opaque) -> Option<Tab> {
-        if o.0 == ::WidgetType::Tab {
-            return Some(Tab { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Tab> {
+    //     if o.0 == ::WidgetType::Tab {
+    //         return Some(Tab { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new() -> Tab {
         let p = unsafe { ffi::uiNewTab() };

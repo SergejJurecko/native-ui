@@ -7,12 +7,12 @@ pub(crate) struct Combobox {
 }
 
 impl Combobox {
-    pub fn from(o: Opaque) -> Option<Combobox> {
-        if o.0 == ::WidgetType::Combobox {
-            return Some(Combobox { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Combobox> {
+    //     if o.0 == ::WidgetType::Combobox {
+    //         return Some(Combobox { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new() -> Combobox {
         let p = unsafe { ffi::uiNewCombobox() };

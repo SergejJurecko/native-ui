@@ -1,5 +1,6 @@
 extern crate native_ui;
 use native_ui::{Button, Config, EventLoop, Layout, Tray, Window};
+use std::thread;
 
 fn main() {
     let mut el = EventLoop::new(None);
@@ -11,6 +12,7 @@ fn main() {
     let tray_ev = tray.add_item("item1");
     tray.add_separator();
     tray.add_quit();
+    let wakeup_ev = el.reg_on_main_queue(other);
 
     // setup gui and create events.
     let win = Window::new("My window", 640, 480, false, other);
@@ -32,6 +34,11 @@ fn main() {
 
     el.show(&win);
 
+    thread::spawn(move || loop {
+        EventLoop::main_queue_wake();
+        thread::sleep(std::time::Duration::from_secs(1));
+    });
+
     while let Ok(ev) = el.step(true) {
         if let Some(ev) = ev {
             if btn_grp.is_member(ev) {
@@ -49,6 +56,8 @@ fn main() {
             } else if ev == win_close {
                 println!("Win close");
                 el.quit();
+            } else if ev == wakeup_ev {
+                println!("Hello from another thread!");
             }
         }
     }

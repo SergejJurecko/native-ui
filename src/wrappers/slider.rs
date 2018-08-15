@@ -6,12 +6,12 @@ pub(crate) struct Slider {
 }
 
 impl Slider {
-    pub fn from(o: Opaque) -> Option<Slider> {
-        if o.0 == ::WidgetType::Slider {
-            return Some(Slider { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Slider> {
+    //     if o.0 == ::WidgetType::Slider {
+    //         return Some(Slider { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new(min: i32, max: i32) -> Slider {
         let p = unsafe { ffi::uiNewSlider(min, max) };

@@ -7,12 +7,12 @@ pub(crate) struct Label {
 }
 
 impl Label {
-    pub fn from(o: Opaque) -> Option<Label> {
-        if o.0 == ::WidgetType::Label {
-            return Some(Label { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Label> {
+    //     if o.0 == ::WidgetType::Label {
+    //         return Some(Label { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new(name: &str) -> Label {
         let s = CString::new(name).unwrap();

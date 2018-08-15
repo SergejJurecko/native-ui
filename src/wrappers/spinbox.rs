@@ -6,12 +6,12 @@ pub(crate) struct Spinbox {
 }
 
 impl Spinbox {
-    pub fn from(o: Opaque) -> Option<Spinbox> {
-        if o.0 == ::WidgetType::Spinbox {
-            return Some(Spinbox { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Spinbox> {
+    //     if o.0 == ::WidgetType::Spinbox {
+    //         return Some(Spinbox { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new(min: i32, max: i32) -> Spinbox {
         let p = unsafe { ffi::uiNewSpinbox(min, max) };

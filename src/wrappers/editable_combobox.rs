@@ -7,12 +7,12 @@ pub(crate) struct EditableCombobox {
 }
 
 impl EditableCombobox {
-    pub fn from(o: Opaque) -> Option<EditableCombobox> {
-        if o.0 == ::WidgetType::EditableCombobox {
-            return Some(EditableCombobox { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<EditableCombobox> {
+    //     if o.0 == ::WidgetType::EditableCombobox {
+    //         return Some(EditableCombobox { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new() -> EditableCombobox {
         let p = unsafe { ffi::uiNewEditableCombobox() };

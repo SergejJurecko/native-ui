@@ -7,12 +7,12 @@ pub(crate) struct Entry {
 }
 
 impl Entry {
-    pub fn from(o: Opaque) -> Option<Entry> {
-        if o.0 == ::WidgetType::Entry {
-            return Some(Entry { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Entry> {
+    //     if o.0 == ::WidgetType::Entry {
+    //         return Some(Entry { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new() -> Entry {
         let p = unsafe { ffi::uiNewEntry() };

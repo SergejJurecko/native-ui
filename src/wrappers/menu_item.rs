@@ -7,12 +7,12 @@ pub(crate) struct MenuItem {
 }
 
 impl MenuItem {
-    pub fn from(o: Opaque) -> Option<MenuItem> {
-        if o.0 == ::WidgetType::MenuItem {
-            return Some(MenuItem { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<MenuItem> {
+    //     if o.0 == ::WidgetType::MenuItem {
+    //         return Some(MenuItem { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn set_checked(&self, v: bool) {
         unsafe {

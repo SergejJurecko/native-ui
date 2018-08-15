@@ -8,12 +8,12 @@ pub(crate) struct Button {
 }
 
 impl Button {
-    pub fn from(o: Opaque) -> Option<Button> {
-        if o.0 == ::WidgetType::Button {
-            return Some(Button { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Button> {
+    //     if o.0 == ::WidgetType::Button {
+    //         return Some(Button { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new(name: &str) -> Button {
         let s = CString::new(name).unwrap();

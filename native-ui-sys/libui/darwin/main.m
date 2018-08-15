@@ -115,8 +115,7 @@ const char *uiInit(uiInitOptions *o)
 		app = [[uiprivApplicationClass sharedApplication] retain];
 		// don't check for a NO return; something (launch services?) causes running from application bundles to always return NO when asking to change activation policy, even if the change is to the same activation policy!
 		// see https://github.com/andlabs/ui/issues/6
-		// [uiprivNSApp() setActivationPolicy:NSApplicationActivationPolicyRegular];
-		// [uiprivNSApp() activateIgnoringOtherApps:true];
+		[uiprivNSApp() setActivationPolicy:NSApplicationActivationPolicyRegular];
 		delegate = [uiprivAppDelegate new];
 		[uiprivNSApp() setDelegate:delegate];
 
@@ -284,3 +283,6 @@ void uiTimer(int milliseconds, int (*f)(void *data), void *data)
                 repeats:YES];
         [delegate release];
 }
+
+// TODO figure out the best way to clean the above up in uiUninit(), if it's even necessary
+// TODO that means figure out if timers can still fire without the main loop

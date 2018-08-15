@@ -8,12 +8,12 @@ pub(crate) struct Layout {
 }
 
 impl Layout {
-    pub fn from(op: Opaque) -> Option<Layout> {
-        if op.0 == ::WidgetType::Layout {
-            return Some(Layout { op });
-        }
-        None
-    }
+    // pub fn from(op: Opaque) -> Option<Layout> {
+    //     if op.0 == ::WidgetType::Layout {
+    //         return Some(Layout { op });
+    //     }
+    //     None
+    // }
 
     pub fn new_vertical() -> Layout {
         let p = unsafe { ffi::uiNewVerticalBox() };

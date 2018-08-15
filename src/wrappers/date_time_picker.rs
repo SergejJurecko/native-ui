@@ -6,12 +6,12 @@ pub(crate) struct DateTimePicker {
 }
 
 impl DateTimePicker {
-    pub fn from(o: Opaque) -> Option<DateTimePicker> {
-        if o.0 == ::WidgetType::DateTimePicker {
-            return Some(DateTimePicker { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<DateTimePicker> {
+    //     if o.0 == ::WidgetType::DateTimePicker {
+    //         return Some(DateTimePicker { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new_date_time() -> DateTimePicker {
         let _p = unsafe { ffi::uiNewDateTimePicker() };

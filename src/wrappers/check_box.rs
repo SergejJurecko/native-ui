@@ -7,12 +7,12 @@ pub(crate) struct Checkbox {
 }
 
 impl Checkbox {
-    pub fn from(o: Opaque) -> Option<Checkbox> {
-        if o.0 == ::WidgetType::Checkbox {
-            return Some(Checkbox { op: o });
-        }
-        None
-    }
+    // pub fn from(o: Opaque) -> Option<Checkbox> {
+    //     if o.0 == ::WidgetType::Checkbox {
+    //         return Some(Checkbox { op: o });
+    //     }
+    //     None
+    // }
 
     pub fn new(name: &str) -> Checkbox {
         let s = CString::new(name).unwrap();

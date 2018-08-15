@@ -16,6 +16,7 @@ struct UiState {
     mq_eid: EvId,
     widgets: HashMap<usize, Widget>,
     evgen: usize,
+    wake_id: EvId,
     max_group: u8,
 }
 
@@ -61,6 +62,7 @@ thread_local!(static UISTATE: RefCell<UiState> = RefCell::new(UiState {
     widgets: HashMap::default(),
     evgen: 0,
     max_group: 0,
+    wake_id: EvId(0),
 }));
 
 // fn gt<'a, T>(p_state: *mut raw::c_void) -> &'a mut EvReg<T> {
@@ -114,12 +116,19 @@ pub(crate) unsafe extern "C" fn on_quit(reg: *mut raw::c_void) -> i32 {
     0
 }
 
-// pub(crate) unsafe extern "C" fn on_queue<T>(data: *mut raw::c_void) {
-//     let reg: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-//     let id = UISTATE.with(|r| r.borrow().mq_cid.0);
-//     if let Some(c) = reg.events.get_mut(&CtrlId(id)) {
-//         c.msg(&Box::from_raw(data as _));
-//     }
+pub(crate) unsafe extern "C" fn on_main_queue(_reg: *mut raw::c_void) {
+    let ev = UISTATE.with(|r| {
+        let state = &mut *r.borrow_mut();
+        state.wake_id
+    });
+    let reg: &mut EvStore = gt(REG.with(|r| *r.borrow_mut()));
+    reg.q.push_back(ev);
+
+    ::os::post_empty_event();
+}
+
+// pub(crate) unsafe extern "C" fn timer_empty(_reg: *mut raw::c_void) -> i32 {
+//     0
 // }
 
 /// Inits and runs ui loop
@@ -248,27 +257,22 @@ impl EventLoop {
         }
     }
 
-    // /// Send message to controller registered with reg_on_main_queue.
-    // /// Can be called from any thread.
-    // pub fn main_queue(msg: T) {
-    //     unsafe {
-    //         ffi::uiQueueMain(
-    //             Some(::ui::on_queue::<T>),
-    //             // Box::into_raw(id) as _,
-    //             Box::into_raw(Box::new(msg)) as _,
-    //         );
-    //     }
-    // }
+    /// Wake up main (ui) thread. This can be called from any thread.
+    pub fn main_queue_wake() {
+        unsafe {
+            ffi::uiQueueMain(Some(::ui::on_main_queue), ptr::null_mut());
+        }
+    }
 
-    // /// Register controller for receiving Ui::main_queue events from other threads.
-    // pub fn reg_on_main_queue(ctrler: &Controller<T>, evid: EvId) {
-    //     // let gt: &mut EvReg<T> = gt(REG.with(|r| *r.borrow()));
-    //     UISTATE.with(|r| {
-    //         let state = &mut *r.borrow_mut();
-    //         state.mq_cid = ctrler.id();
-    //         state.mq_eid = evid;
-    //     });
-    // }
+    /// Get an EvId for events sent from other threads using main_queue_wake.
+    pub fn reg_on_main_queue(&self, g: ::EvGroup) -> EvId {
+        let evid = ::EventLoop::ev_id(g);
+        UISTATE.with(|r| {
+            let state = &mut *r.borrow_mut();
+            state.wake_id = evid;
+        });
+        evid
+    }
 }
 
 impl Drop for EventLoop {
