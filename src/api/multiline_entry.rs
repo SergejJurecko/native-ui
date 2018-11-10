@@ -1,36 +1,31 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use {wrappers::Entry as ImplEntry, EvId};
+use {wrappers::MultilineEntry as ImplMultilineEntry, EvId};
 
 #[derive(Copy, Clone)]
-pub struct Entry {
+pub struct MultilineEntry {
     op: ApiOpaque,
-    b: ImplEntry,
+    b: ImplMultilineEntry,
     gr: ::EvGroup,
 }
 
-impl Entry {
-    pub fn new(gr: ::EvGroup) -> Entry {
-        let b = ImplEntry::new();
+impl MultilineEntry {
+    pub fn new(gr: ::EvGroup) -> MultilineEntry {
+        let b = ImplMultilineEntry::new();
         Self::new_impl(b, gr)
     }
 
-    fn new_impl(b: ImplEntry, gr: ::EvGroup) -> Entry {
-        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::Entry, b.op.1), gr);
-        Entry {
-            op: ApiOpaque(::WidgetType::Entry, id),
+    fn new_impl(b: ImplMultilineEntry, gr: ::EvGroup) -> MultilineEntry {
+        let id = UiImpl::new_widget(::ImplOpaque(::WidgetType::MultilineEntry, b.op.1), gr);
+        MultilineEntry {
+            op: ApiOpaque(::WidgetType::MultilineEntry, id),
             b,
             gr,
         }
     }
 
-    pub fn new_password(gr: ::EvGroup) -> Entry {
-        let b = ImplEntry::new_password();
-        Self::new_impl(b, gr)
-    }
-
-    pub fn new_search(gr: ::EvGroup) -> Entry {
-        let b = ImplEntry::new_search();
+    pub fn new_non_wrapping(gr: ::EvGroup) -> MultilineEntry {
+        let b = ImplMultilineEntry::new_non_wrapping();
         Self::new_impl(b, gr)
     }
 
@@ -39,6 +34,13 @@ impl Entry {
             return;
         }
         self.b.set_text(txt);
+    }
+
+    pub fn append(&self, txt: &str) {
+        if UiImpl::get_widget(self.op.1).is_none() {
+            return;
+        }
+        self.b.append(txt);
     }
 
     pub fn text(&self) -> &str {
@@ -74,13 +76,13 @@ impl Entry {
     }
 }
 
-impl ::std::cmp::PartialEq for Entry {
-    fn eq(&self, other: &Entry) -> bool {
+impl ::std::cmp::PartialEq for MultilineEntry {
+    fn eq(&self, other: &MultilineEntry) -> bool {
         self.op.1 == other.op.1
     }
 }
 
-impl AsRef<ApiOpaque> for Entry {
+impl AsRef<ApiOpaque> for MultilineEntry {
     fn as_ref(&self) -> &ApiOpaque {
         &self.op
     }

@@ -69,20 +69,19 @@ impl MultilineEntry {
         }
     }
 
-    pub fn reg_on_changed<T>(&self, p: *mut ::RegId) {
-        // let id = ::std::boxed::Box::new(RegId::new(
-        //     WidgetType::MultilineEntry,
-        //     ctrler.id().0,
-        //     evid.0,
-        // ));
-        // unsafe {
-        //     ffi::uiMultilineEntryOnChanged(
-        //         self.p,
-        //         Some(::ui::on_event::<ffi::uiMultilineEntry>),
-        //         Box::into_raw(id) as *mut raw::c_void,
-        //     );
-        // }
+    pub fn reg_on_changed(&self, p: *mut ::RegId) {
+        unsafe {
+            ffi::uiEntryOnChanged(
+                self.op.1 as _,
+                Some(on_event),
+                p as *mut ::std::os::raw::c_void,
+            );
+        }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiEntry, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for MultilineEntry {
