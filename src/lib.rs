@@ -48,7 +48,7 @@ impl RegId {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 enum WidgetType {
     Window,
     Button,

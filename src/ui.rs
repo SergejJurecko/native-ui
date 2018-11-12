@@ -42,6 +42,7 @@ struct Widget {
     on_closing: *mut ::RegId,
     on_ev: *mut ::RegId,
     children: VecDeque<usize>,
+    parent: Option<usize>,
 }
 
 impl Widget {
@@ -51,6 +52,7 @@ impl Widget {
             children: VecDeque::new(),
             on_closing: ptr::null_mut(),
             on_ev: ptr::null_mut(),
+            parent: None,
         }
     }
 }
@@ -241,7 +243,8 @@ impl EventLoop {
     // }
 
     pub fn quit(&self) {
-        // UiImpl::close_windows();
+        UiImpl::close_windows();
+        UiImpl::close_containers();
         unsafe {
             ffi::uiQuit();
         }
@@ -349,6 +352,9 @@ impl UiImpl {
             if let Some(widg) = state.widgets.get_mut(&id) {
                 widg.children.push_back(child);
             }
+            if let Some(widg) = state.widgets.get_mut(&child) {
+                widg.parent = Some(id);
+            }
         });
     }
 
@@ -360,13 +366,34 @@ impl UiImpl {
     }
 
     fn close_windows() {
+        Self::close_all(::WidgetType::Window);
+    }
+
+    fn close_containers() {
+        Self::close_all(::WidgetType::Layout);
+    }
+
+    fn close_all(typ: ::WidgetType) {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
-            for (id, w) in state.widgets.iter() {
-                if w.op.0 == ::WidgetType::Window {
-                    unsafe {
-                        ffi::uiControlDestroy(w.op.1 as _);
+            loop {
+                let mut cont = None;
+                for (id, w) in state.widgets.iter() {
+                    if w.op.0 == typ {
+                        if w.parent.is_none() {
+                            unsafe {
+                                ffi::uiControlDestroy(w.op.1 as _);
+                            }
+
+                            cont = Some(id.clone());
+                            break;
+                        }
                     }
+                }
+                if let Some(cont) = cont {
+                    Self::remove_children(cont, state);
+                } else {
+                    break;
                 }
             }
         });
