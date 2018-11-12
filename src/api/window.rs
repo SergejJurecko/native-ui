@@ -24,7 +24,7 @@ impl Window {
     /// Widget should be a container like a layout, group or tab.
     pub fn set_child<T: AsRef<ApiOpaque>>(&self, widget: T) {
         ::int_opaque(widget.as_ref()).map(|o| self.w.set_child(o));
-        UiImpl::push_child(self.op.1, (widget.as_ref() as &ApiOpaque).1);
+        UiImpl::push_child(self.op.1, (widget.as_ref() as &ApiOpaque).1, true);
     }
 
     pub fn title(&self) -> &str {

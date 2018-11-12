@@ -13,7 +13,7 @@ struct EvStore {
 
 struct UiState {
     // mq_cid: CtrlId,
-    mq_eid: EvId,
+    // mq_eid: EvId,
     widgets: HashMap<usize, Widget>,
     evgen: usize,
     wake_id: EvId,
@@ -60,7 +60,7 @@ impl Widget {
 thread_local!(static REG: RefCell<*mut raw::c_void> = RefCell::new(ptr::null_mut()));
 thread_local!(static UISTATE: RefCell<UiState> = RefCell::new(UiState {
     // mq_cid: CtrlId(0),
-    mq_eid: EvId(0),
+    // mq_eid: EvId(0),
     widgets: HashMap::default(),
     evgen: 0,
     max_group: 0,
@@ -346,14 +346,24 @@ impl UiImpl {
         })
     }
 
-    pub fn push_child(id: usize, child: usize) {
+    pub fn push_child(id: usize, child: usize, single_parent: bool) {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
-            if let Some(widg) = state.widgets.get_mut(&id) {
+
+            // remove and put back to get arround the borrow checker
+            if let Some(mut widg) = state.widgets.remove(&id) {
+                if single_parent {
+                    while let Some(old_child) = widg.children.pop_back() {
+                        if let Some(widg) = state.widgets.get_mut(&old_child) {
+                            widg.parent = None;
+                        }
+                    }
+                }
                 widg.children.push_back(child);
-            }
-            if let Some(widg) = state.widgets.get_mut(&child) {
-                widg.parent = Some(id);
+                state.widgets.insert(id, widg);
+                if let Some(widg) = state.widgets.get_mut(&child) {
+                    widg.parent = Some(id);
+                }
             }
         });
     }
@@ -371,6 +381,9 @@ impl UiImpl {
 
     fn close_containers() {
         Self::close_all(::WidgetType::Layout);
+        Self::close_all(::WidgetType::Tab);
+        Self::close_all(::WidgetType::Group);
+        Self::close_all(::WidgetType::Form);
     }
 
     fn close_all(typ: ::WidgetType) {

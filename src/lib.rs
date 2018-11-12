@@ -71,6 +71,7 @@ enum WidgetType {
     Menu,
     Null,
     Tray,
+    Form,
 }
 
 #[derive(Clone, Copy, PartialEq, Hash)]

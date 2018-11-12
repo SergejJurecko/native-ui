@@ -22,12 +22,12 @@ impl Tab {
 
     pub fn append<T: AsRef<ApiOpaque>>(&self, name: &str, o: T) {
         ::int_opaque(o.as_ref()).map(|o| self.b.append(name, o));
-        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1);
+        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1, false);
     }
 
     pub fn insert<T: AsRef<ApiOpaque>>(&self, name: &str, before: i32, o: T) {
         ::int_opaque(o.as_ref()).map(|o| self.b.insert(name, before, o));
-        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1);
+        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1, false);
     }
 
     pub fn delete(&self, index: i32) {

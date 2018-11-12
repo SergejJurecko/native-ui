@@ -1,37 +1,27 @@
 use super::Opaque as ApiOpaque;
 use ui::UiImpl;
-use wrappers::Layout as ImplLayout;
+use wrappers::Form as ImplForm;
 
 #[derive(Copy, Clone)]
-pub struct Layout {
+pub struct Form {
     op: ApiOpaque,
-    l: ImplLayout,
+    l: ImplForm,
     // gr: ::EvGroup,
 }
 
-impl Layout {
-    pub fn new_vertical(gr: ::EvGroup) -> Layout {
-        let l = ImplLayout::new_vertical();
+impl Form {
+    pub fn new_vertical(gr: ::EvGroup) -> Form {
+        let l = ImplForm::new();
         let id = UiImpl::new_widget(l.op.clone(), gr);
-        Layout {
-            op: ApiOpaque(::WidgetType::Layout, id),
+        Form {
+            op: ApiOpaque(::WidgetType::Form, id),
             l,
             // gr,
         }
     }
 
-    pub fn new_horizontal(gr: ::EvGroup) -> Layout {
-        let l = ImplLayout::new_horizontal();
-        let id = UiImpl::new_widget(l.op.clone(), gr);
-        Layout {
-            op: ApiOpaque(::WidgetType::Layout, id),
-            l,
-            // gr,
-        }
-    }
-
-    pub fn append<T: AsRef<ApiOpaque>>(&self, o: T, strechy: bool) {
-        ::int_opaque(o.as_ref()).map(|o| self.l.append(o, strechy));
+    pub fn append<T: AsRef<ApiOpaque>>(&self, label: &str, o: T, strechy: bool) {
+        ::int_opaque(o.as_ref()).map(|o| self.l.append(label, o, strechy));
         UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1, false);
     }
 
@@ -57,13 +47,13 @@ impl Layout {
     }
 }
 
-impl ::std::cmp::PartialEq for Layout {
-    fn eq(&self, other: &Layout) -> bool {
+impl ::std::cmp::PartialEq for Form {
+    fn eq(&self, other: &Form) -> bool {
         self.op.1 == other.op.1
     }
 }
 
-impl AsRef<ApiOpaque> for Layout {
+impl AsRef<ApiOpaque> for Form {
     fn as_ref(&self) -> &ApiOpaque {
         &self.op
     }
