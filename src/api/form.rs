@@ -10,7 +10,7 @@ pub struct Form {
 }
 
 impl Form {
-    pub fn new_vertical(gr: ::EvGroup) -> Form {
+    pub fn new(gr: ::EvGroup) -> Form {
         let l = ImplForm::new();
         let id = UiImpl::new_widget(l.op.clone(), gr);
         Form {

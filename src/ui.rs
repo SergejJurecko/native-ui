@@ -245,6 +245,7 @@ impl EventLoop {
     pub fn quit(&self) {
         UiImpl::close_windows();
         UiImpl::close_containers();
+        UiImpl::close_all(::WidgetType::Null);
         unsafe {
             ffi::uiQuit();
         }
@@ -392,7 +393,7 @@ impl UiImpl {
             loop {
                 let mut cont = None;
                 for (id, w) in state.widgets.iter() {
-                    if w.op.0 == typ {
+                    if w.op.0 == typ || typ == ::WidgetType::Null {
                         if w.parent.is_none() {
                             unsafe {
                                 ffi::uiControlDestroy(w.op.1 as _);
