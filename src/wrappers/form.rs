@@ -23,7 +23,7 @@ impl Form {
 
     pub fn delete(&self, index: i32) {
         unsafe {
-            ffi::uiBoxDelete(self.op.1 as _, index);
+            ffi::uiFormDelete(self.op.1 as _, index);
         }
     }
 

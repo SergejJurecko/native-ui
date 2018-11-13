@@ -347,6 +347,25 @@ impl UiImpl {
         })
     }
 
+    pub fn remove_child(id: usize, child: usize) {
+        UISTATE.with(|r| {
+            let state = &mut *r.borrow_mut();
+
+            if let Some(widg) = state.widgets.get_mut(&id) {
+                let mut pos = 0;
+                for c in widg.children.iter() {
+                    if *c == child {
+                        break;
+                    }
+                    pos += 1;
+                }
+                if pos < widg.children.len() {
+                    widg.children.remove(pos);
+                }
+            }
+        });
+    }
+
     pub fn push_child(id: usize, child: usize, single_parent: bool) {
         UISTATE.with(|r| {
             let state = &mut *r.borrow_mut();
