@@ -404,6 +404,7 @@ impl UiImpl {
         Self::close_all(::WidgetType::Tab);
         Self::close_all(::WidgetType::Group);
         Self::close_all(::WidgetType::Form);
+        Self::close_all(::WidgetType::Grid);
     }
 
     fn close_all(typ: ::WidgetType) {
