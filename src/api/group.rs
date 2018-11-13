@@ -36,7 +36,7 @@ impl Group {
 
     pub fn set_child<T: AsRef<ApiOpaque>>(&self, o: T) {
         ::int_opaque(o.as_ref()).map(|o| self.b.set_child(o));
-        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1, false);
+        UiImpl::push_child(self.op.1, (o.as_ref() as &ApiOpaque).1, true);
     }
 
     pub fn set_margined(&self, m: i32) {
