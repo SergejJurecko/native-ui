@@ -25,9 +25,9 @@ impl Grid {
         top: i32,
         xspan: i32,
         yspan: i32,
-        hexpand: i32,
+        hexpand: bool,
         halign: ::Align,
-        vexpand: i32,
+        vexpand: bool,
         valign: ::Align,
     ) {
         ::int_opaque(o.as_ref()).map(|o| {

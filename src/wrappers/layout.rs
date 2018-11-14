@@ -41,13 +41,13 @@ impl Layout {
         }
     }
 
-    pub fn padded(&self) -> i32 {
-        unsafe { ffi::uiBoxPadded(self.op.1 as _) }
+    pub fn padded(&self) -> bool {
+        unsafe { ffi::uiBoxPadded(self.op.1 as _) != 0 }
     }
 
-    pub fn set_padded(&self, padded: i32) {
+    pub fn set_padded(&self, padded: bool) {
         unsafe {
-            ffi::uiBoxSetPadded(self.op.1 as _, padded);
+            ffi::uiBoxSetPadded(self.op.1 as _, padded as _);
         }
     }
 }

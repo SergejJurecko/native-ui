@@ -49,9 +49,9 @@ impl Grid {
         top: i32,
         xspan: i32,
         yspan: i32,
-        hexpand: i32,
+        hexpand: bool,
         halign: ::Align,
-        vexpand: i32,
+        vexpand: bool,
         valign: ::Align,
     ) {
         unsafe {
@@ -62,9 +62,9 @@ impl Grid {
                 top,
                 xspan,
                 yspan,
-                hexpand,
+                hexpand as i32,
                 halign as u32,
-                vexpand,
+                vexpand as i32,
                 valign as u32,
             );
         }

@@ -42,14 +42,14 @@ impl Layout {
         self.l.delete(index);
     }
 
-    pub fn padded(&self) -> i32 {
+    pub fn padded(&self) -> bool {
         if UiImpl::get_widget(self.op.1).is_none() {
-            return 0;
+            return false;
         }
         self.l.padded()
     }
 
-    pub fn set_padded(&self, padded: i32) {
+    pub fn set_padded(&self, padded: bool) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
