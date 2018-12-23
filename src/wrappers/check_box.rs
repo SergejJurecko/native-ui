@@ -48,13 +48,7 @@ impl Checkbox {
     }
 
     pub fn checked(&self) -> bool {
-        unsafe {
-            if ffi::uiCheckboxChecked(self.op.1 as _) == 0 {
-                false
-            } else {
-                true
-            }
-        }
+        unsafe { ffi::uiCheckboxChecked(self.op.1 as _) != 0 }
     }
 
     pub fn reg_on_toggled(&self, p: *mut ::RegId) {

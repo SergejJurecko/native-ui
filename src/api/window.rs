@@ -119,16 +119,16 @@ impl Window {
         self.w.fullscreen()
     }
 
-    pub fn set_margined(&self, m: i32) {
+    pub fn set_margined(&self, m: bool) {
         if UiImpl::get_widget(self.op.1).is_none() {
             return;
         }
         self.w.set_margined(m);
     }
 
-    pub fn margined(&self) -> i32 {
+    pub fn margined(&self) -> bool {
         if UiImpl::get_widget(self.op.1).is_none() {
-            return 0;
+            return false;
         }
         self.w.margined()
     }

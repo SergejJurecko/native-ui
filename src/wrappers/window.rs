@@ -137,14 +137,14 @@ impl Window {
         }
     }
 
-    pub fn set_margined(&self, m: i32) {
+    pub fn set_margined(&self, m: bool) {
         unsafe {
-            ffi::uiWindowSetMargined(self.op.1 as _, m);
+            ffi::uiWindowSetMargined(self.op.1 as _, m as _);
         }
     }
 
-    pub fn margined(&self) -> i32 {
-        unsafe { ffi::uiWindowMargined(self.op.1 as _) }
+    pub fn margined(&self) -> bool {
+        unsafe { ffi::uiWindowMargined(self.op.1 as _) != 0 }
     }
 
     pub fn set_borderless(&self, b: i32) {

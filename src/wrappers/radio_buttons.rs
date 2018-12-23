@@ -39,20 +39,19 @@ impl RadioButtons {
         }
     }
 
-    pub fn reg_on_selected<T>(&self, p: *mut ::RegId) {
-        // let id = ::std::boxed::Box::new(RegId::new(
-        //     WidgetType::RadioButtons,
-        //     ctrler.id().0,
-        //     evid.0,
-        // ));
-        // unsafe {
-        //     ffi::uiRadioButtonsOnSelected(
-        //         self.p,
-        //         Some(::ui::on_event::<ffi::uiRadioButtons>),
-        //         Box::into_raw(id) as *mut raw::c_void,
-        //     );
-        // }
+    pub fn reg_on_selected(&self, p: *mut ::RegId) {
+        unsafe {
+            ffi::uiRadioButtonsOnSelected(
+                self.op.1 as _,
+                Some(on_event),
+                p as *mut ::std::os::raw::c_void,
+            );
+        }
     }
+}
+
+unsafe extern "C" fn on_event(_: *mut ffi::uiRadioButtons, reg: *mut ::std::os::raw::c_void) {
+    ::ui::on_event(reg);
 }
 
 impl AsRef<Opaque> for RadioButtons {
